@@ -1,5 +1,7 @@
 # Applitude - Simple module management.
 
+Status - Applitude is in production use with millions of monthly active users. However, it is very new, and is in use by relatively few projects. It might be buggy. It might not work as expected. It definitely isn't well documented. Please feel free to kick the tires and contribute bug fixes, but for now, only experts who feel confident to debug issues and contribute bug fixes should attempt to use this in a production codebase.
+
 Applitude is a simple module management solution that serves the following needs:
 
 * **Namespacing**. Modules can only be registered once, in order to avoid duplicate code runs, and tricky associated bugs.

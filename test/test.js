@@ -35,13 +35,31 @@
     });
 
     test('Applitude timing', function () {
+      var whenModuleReady = app.deferred();
+
+      app.register('testModuleBeforeRender', {
+        beforeRender: [whenModuleReady]
+      });
+
       equal(hasRendered, false,
-        'Render should wait for beforeRender promises to resolve.');
+        'Render should wait for app-level beforeRender promises to resolve.');
 
       app.options.allClear.resolve();
 
-      equal(hasRendered, true,
-        '.render() should execute when beforeRender resolves.');
+      stop();
+      setTimeout(function () {
+        equal(hasRendered, false,
+          '.render() should not execute until module beforeRender resolves.');
+      }, 0);
+      start();
+
+      stop();
+      setTimeout(function () {
+        equal(hasRendered, false,
+          '.render() should execute when all beforeRender promises resolve.');
+      }, 0);
+      start();
+
     });
 
     test('Applitude mixins', function () {
@@ -74,6 +92,44 @@
         '.when() should be available on applitude.');
       ok(app.when(app.rejected).isRejected(),
         '.when() should work for rejected state.');
+
+    });
+
+    test('Promise flow utilities', function () {
+      var taskA = app.deferred(),
+        taskB = app.deferred(),
+        taskC = app.deferred(),
+        testQueue = app.queue([taskA.promise(), taskB.promise()]),
+        allDone = false;
+
+      testQueue.done(function () {
+        allDone = true;
+      });
+
+      equal(testQueue.isResolved(), false,
+        'Queue should not be resolved until all queued promises resolve.');
+
+      taskA.resolve();
+
+      equal(testQueue.isResolved(), false,
+        'Queue should not be resolved until all queued promises resolve.');
+
+      testQueue.push(taskC.promise());
+
+      taskB.resolve();
+
+      equal(testQueue.isResolved(), false,
+        'Queue should not be resolved until all queued promises resolve.');            
+
+      taskC.resolve();
+
+      stop();
+      setTimeout(function () {
+        equal(allDone, true, 
+          'Queue should resolve when all queued promises resolve.');
+      }, 0);
+      start();
+
     });
 
     test('Logging', function () {
