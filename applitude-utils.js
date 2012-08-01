@@ -8,7 +8,7 @@
    * 
    * @return [String] 
    */
-  applitude.register('uniqueId', function uniqueId() {
+  app.register('uniqueId', function uniqueId() {
     return (new Date().getTime() << 0).toString(36)
         + ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).substr(-4);
   });
