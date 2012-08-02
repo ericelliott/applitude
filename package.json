@@ -1,0 +1,10 @@
+{
+  "name": "Applitude.js",
+  "version": "0.1.0",
+  "dependencies": {
+  },
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
+  }
+}
