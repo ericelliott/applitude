@@ -1,15 +1,6 @@
 (function (app, $) {
 
   $(function () {
-    var hasRendered = false;
-    app.register('testBeforeRender',
-      {
-        load: function load() {},
-        render: function render() {
-          hasRendered = true;
-        }
-      });
-
     test('Applitude core', function () {
       ok(applitude,
         'applitude should exist.');
@@ -17,7 +8,7 @@
       ok(app.environment && app.environment.debug,
         'Environment should load (triggered by app.js).');
 
-      ok(app.options.allClear,
+      ok(app.options.optionAdded,
         'Options should get added to app object.');
 
     });
@@ -34,32 +25,43 @@
         '.register() should throw an error on duplicate register.');
     });
 
-    test('Applitude timing', function () {
-      var whenModuleReady = app.deferred();
+    test('Applitude timing.', function () {
+      var whenModuleReady = app.deferred(),
+        hasRendered = false,
+        whenAppInitFinished = app.options.whenAppInitFinished;
+      app.register('testBeforeRender',
+        {
+          load: function load() {},
+          render: function render() {
+            ok(true, 'Render function should run.');
+            start();
+          }
+        });
 
+      expect(4);
+      stop();
+
+      // this is separate from above to make sure it's global.
       app.register('testModuleBeforeRender', {
         beforeRender: [whenModuleReady]
       });
 
       equal(hasRendered, false,
-        'Render should wait for app-level beforeRender promises to resolve.');
+        'Render should wait until module beforeRender resolves.');
 
-      app.options.allClear.resolve();
+      whenModuleReady.done(function () {
+        ok(true,
+          'Module ready should resolve.');
+      });
 
-      stop();
-      setTimeout(function () {
+      whenAppInitFinished.done(function () {
         equal(hasRendered, false,
-          '.render() should not execute until module beforeRender resolves.');
-      }, 0);
-      start();
+          'Render should wait for .register() beforeRender');
 
-      stop();
-      setTimeout(function () {
-        equal(hasRendered, false,
-          '.render() should execute when all beforeRender promises resolve.');
-      }, 0);
-      start();
+        whenModuleReady.resolve();
+      });
 
+      whenAppInitFinished.resolve();
     });
 
     test('Applitude mixins', function () {
@@ -102,8 +104,16 @@
         testQueue = app.queue([taskA.promise(), taskB.promise()]),
         allDone = false;
 
+      stop();
+      expect(4);
+
       testQueue.done(function () {
         allDone = true;
+
+        equal(allDone, true, 
+          'Queue should resolve when all queued promises resolve.');
+
+        start();
       });
 
       equal(testQueue.isResolved(), false,
@@ -122,14 +132,6 @@
         'Queue should not be resolved until all queued promises resolve.');            
 
       taskC.resolve();
-
-      stop();
-      setTimeout(function () {
-        equal(allDone, true, 
-          'Queue should resolve when all queued promises resolve.');
-      }, 0);
-      start();
-
     });
 
     test('Logging', function () {

@@ -1,13 +1,14 @@
 (function (app) {
   var namespace = 'applitudeTest',
-    allClear = app.deferred();
+    whenAppInitFinished = app.deferred();
 
   app(namespace,
     {
       debug: true
     },
     {
-      beforeRender: [allClear.promise()],
-      allClear: allClear
+      beforeRender: [whenAppInitFinished.promise()],
+      optionAdded: true,
+      whenAppInitFinished: whenAppInitFinished
     });
 }(applitude));
