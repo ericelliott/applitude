@@ -14,15 +14,25 @@
     });
 
     test('Applitude namespacing', function () {
-      equal(typeof app.uniqueId(), 'string',
+      app.register('namespaceTest', true);
+      equal(app.namespaceTest, true,
+        '.register() should assign namespace.');
+
+      app.register('namespaceTest', 'fail');
+      equal(app.namespaceTest, true,
+        '.register() fails on duplicate namespace.');
+    });
+
+    test('Applitude deep namespacing', function () {
+      equal(typeof app.utils.uniqueId(), 'string',
         '.register() should work with functions.');
 
-      app.register('uniqueId', function () {
+      app.register('utils.uniqueId', function () {
         return false;
       });
 
-      equal(typeof app.uniqueId(), 'string',
-        '.register() should throw an error on duplicate register.');
+      equal(typeof app.utils.uniqueId(), 'string',
+        '.register() should fail on duplicate register.');
     });
 
     test('Applitude timing.', function () {

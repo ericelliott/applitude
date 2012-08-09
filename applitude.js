@@ -70,7 +70,31 @@
       register,
       stringToArray,
       addMixins,
-      whenRenderReady = queue();
+      whenRenderReady = queue(),
+      setModule;
+
+    setModule = function val(cursor, location, value, cb) {
+      var tree = location.split('.'),
+        key = tree.shift(),
+        returnValue;
+
+      while (tree.length) {
+        if (cursor[key] !== undefined) {
+          cursor = cursor[key];
+        } else {
+          cursor = cursor[key] = {};
+        }
+        key = tree.shift();
+      }
+
+      if (cursor[key] === undefined) {
+        cursor[key] = value;
+        returnValue = true;
+      } else {
+        returnValue = false;
+      }
+      return returnValue;
+    };
 
     stringToArray = function (input, pattern) {
       pattern = pattern || /\s*\,\s*/;
@@ -104,10 +128,16 @@
 
       register = function register(ns, module) {
         var whenLoaded,
-          beforeRender = (module && module.beforeRender);
+          beforeRender = (module && module.beforeRender),
+          newModule;
 
-        if (!app[ns]) {
-          app[ns] = module;
+        module.moduleNamespace = ns;
+
+        newModule = setModule(app, ns, module, function () {
+          app.trigger('module_added' + app.appNamespace, ns);            
+        });
+
+        if (newModule) {
 
           if (module.mixins) {
             addMixins(module);
@@ -144,6 +174,8 @@
         } else {
           app.log('Error: Module already registered: ', ns);
         }
+
+        return app;
       };
 
       $(function () {
