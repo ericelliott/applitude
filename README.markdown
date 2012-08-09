@@ -1,6 +1,15 @@
 # Applitude - Simple module management.
 
-Applitude is a simple event-driven javascript client-side application architecture and module management solution. It does not compete with MV* solutions such as Backbone, nor does it compete with module loaders or dependency management solutions such as RequireJS. Applitude assumes that dependency management has already been done and that your modules are ready to execute in the correct order.
+Applitude is a simple event-driven client-side JavaScript application architecture and module management framework that serves the following needs:
+
+* Namespacing
+* Sandbox
+* Environment
+* Loading performance boost
+* Mixins
+* Deferred utilities
+
+The guiding philosophy of Applitude is “Less is more.” Applitude sets up the sandbox and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”
 
 **Status** - Applitude is in production use with millions of monthly active users. However, it is very new, and is in use by relatively few projects. It might be buggy. It might not work as expected. It definitely isn't well documented. Please feel free to kick the tires and contribute bug fixes, but for now, only experts who feel confident to debug issues and contribute bug fixes should attempt to use this in a production codebase.
 There are [unit tests](http://applitude.herokuapp.com/) covering most of the functionality.
