@@ -53,6 +53,8 @@ As a general rule of thumb, your app should be ready to open-source at any time,
 
 Applitude expects at least one varible to be defined: `debug` (Bool) If `debug` is true, anything logged with `app.log()` will be printed to the console (if available).
 
+For more on application configuration, see ["The Twelve-Factor App"](http://www.12factor.net/config)
+
 ### Options
 
 It will also look for a beforeRender array of promises. If passed, no modules will render until all beforeRender promises have resolved.
