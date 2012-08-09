@@ -1,6 +1,7 @@
 # Applitude - Simple module management.
 
 **Status** - Applitude is in production use with millions of monthly active users. However, it is very new, and is in use by relatively few projects. It might be buggy. It might not work as expected. It definitely isn't well documented. Please feel free to kick the tires and contribute bug fixes, but for now, only experts who feel confident to debug issues and contribute bug fixes should attempt to use this in a production codebase.
+There are [unit tests](http://applitude.herokuapp.com/) covering most of the functionality.
 
 **A Simple Applitude Module** - *Tip:* Wrap your module with an Immediately Invoked Anonymous Expression (IIFE), and pass applitude into it to create a handy 'app' shortcut in your code:
 
