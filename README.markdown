@@ -9,12 +9,16 @@ Applitude is a simple event-driven client-side JavaScript application architectu
 * Mixins
 * Deferred utilities
 
+View the slideshow: ["Introducing Applitude: Simple Module Management"](https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&start=false&loop=false&delayms=10000)
+
 The guiding philosophy of Applitude is “Less is more.” Applitude sets up the sandbox and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”
 
 **Status** - Applitude is in production use with millions of monthly active users. However, it is very new, and is in use by relatively few projects. It might be buggy. It might not work as expected. It definitely isn't well documented. Please feel free to kick the tires and contribute bug fixes, but for now, only experts who feel confident to debug issues and contribute bug fixes should attempt to use this in a production codebase.
 There are [unit tests](http://applitude.herokuapp.com/) covering most of the functionality.
 
-**A Simple Applitude Module** - *Tip:* Wrap your module with an Immediately Invoked Anonymous Expression (IIFE), and pass applitude into it to create a handy 'app' shortcut in your code:
+## A Simple Applitude Module
+
+*Tip:* Wrap your module with an Immediately Invoked Anonymous Expression (IIFE), and pass applitude into it to create a handy 'app' shortcut in your code:
 
     (function (app) {
       'use strict';
@@ -33,9 +37,11 @@ There are [unit tests](http://applitude.herokuapp.com/) covering most of the fun
     
     }(applitude));
 
-To create a new app:
+## Create an app
 
     app(namespace, environmentObject, optionsObject);
+
+### Environment
 
 Environment is made up of things like image hosting URLs which might vary from one host or CDN to another. Generally server side environments will also contain passwords, secrets, or tokens for communicating with third party APIs. Since the client-side JavaScript environment is not secure, you should not pass those secrets through to the JavaScript layer.
 
@@ -46,6 +52,8 @@ It might be tempting to pass a single environment string through and put logic i
 As a general rule of thumb, your app should be ready to open-source at any time, even if you never intend to do it. That mode of thought will help establish the proper separation of environment configuration and secrets from application code.
 
 Applitude expects at least one varible to be defined: `debug` (Bool) If `debug` is true, anything logged with `app.log()` will be printed to the console (if available).
+
+### Options
 
 It will also look for a beforeRender array of promises. If passed, no modules will render until all beforeRender promises have resolved.
 
@@ -66,7 +74,7 @@ Any other options will be made available on the `app.options` object. Here's a s
         });
     }(applitude));
 
-Applitude serves the following needs:
+## Applitude Responsibilities
 
 * **Namespacing**. Modules can only be registered once, in order to avoid duplicate code runs, and tricky associated bugs.
 
