@@ -1,0 +1,217 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Applitude</title>
+  <meta name="description" content="Application namespacing and module management.">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Applitude</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">Application namespacing and module management.</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/dilvie/applitude/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/dilvie/applitude/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/dilvie/applitude" class="code">View Applitude on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <h1>Applitude - Simple module management.</h1>
+
+<p>Applitude is a simple event-driven client-side JavaScript application architecture and module management framework that serves the following needs:</p>
+
+<ul>
+<li>Namespacing</li>
+<li>Sandbox</li>
+<li>Environment</li>
+<li>Loading performance boost</li>
+<li>Mixins</li>
+<li>Deferred utilities</li>
+</ul><p>View the slideshow: <a href="https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&amp;start=false&amp;loop=false&amp;delayms=10000">"Introducing Applitude: Simple Module Management"</a></p>
+
+<p>The guiding philosophy of Applitude is “Less is more.” Applitude sets up the sandbox and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”</p>
+
+<p><strong>Status</strong> - Applitude is in production use with millions of monthly active users. However, it is very new, and is in use by relatively few projects. It might be buggy. It might not work as expected. It definitely isn't well documented. Please feel free to kick the tires and contribute bug fixes, but for now, only experts who feel confident to debug issues and contribute bug fixes should attempt to use this in a production codebase.
+There are <a href="http://applitude.herokuapp.com/">unit tests</a> covering most of the functionality.</p>
+
+<h2>A Simple Applitude Module</h2>
+
+<p><em>Tip:</em> Wrap your module with an Immediately Invoked Anonymous Expression (IIFE), and pass applitude into it to create a handy 'app' shortcut in your code:</p>
+
+<pre><code>(function (app) {
+  'use strict';
+
+  /**
+   * uniqueId
+   * returns a short random string, prepended with epoch time
+   * converted into a short sequence of characters.
+   * 
+   * @return [String] 
+   */
+  app.register('uniqueId', function uniqueId() {
+    return (new Date().getTime() &lt;&lt; 0).toString(36)
+        + ("0000" + (Math.random() * Math.pow(36, 4) &lt;&lt; 0).toString(36)).substr(-4);
+  });
+
+}(applitude));
+</code></pre>
+
+<h2>Create an app</h2>
+
+<pre><code>app(namespace, environmentObject, optionsObject);
+</code></pre>
+
+<h3>Environment</h3>
+
+<p>Environment is made up of things like image hosting URLs which might vary from one host or CDN to another. Generally server side environments will also contain passwords, secrets, or tokens for communicating with third party APIs. Since the client-side JavaScript environment is not secure, you should not pass those secrets through to the JavaScript layer.</p>
+
+<p>Evironment variables should be passed into your application from your environment configuration, and not hard-coded. Your application should be portable to new hardware or hosts without any changes to your codebase.</p>
+
+<p>It might be tempting to pass a single environment string through and put logic in your code to determine URLs and so on, but that should be done at the configuration level wherever possible. That will make it easier to port your app to new environments.</p>
+
+<p>As a general rule of thumb, your app should be ready to open-source at any time, even if you never intend to do it. That mode of thought will help establish the proper separation of environment configuration and secrets from application code.</p>
+
+<p>Applitude expects at least one varible to be defined: <code>debug</code> (Bool) If <code>debug</code> is true, anything logged with <code>app.log()</code> will be printed to the console (if available).</p>
+
+<p>For more on application configuration, see <a href="http://www.12factor.net/config">"The Twelve-Factor App"</a></p>
+
+<h3>Options</h3>
+
+<p>It will also look for a beforeRender array of promises. If passed, no modules will render until all beforeRender promises have resolved.</p>
+
+<p>Any other options will be made available on the <code>app.options</code> object. Here's a sample:</p>
+
+<pre><code>(function (app) {
+  var namespace = 'applitudeTest',
+    whenAppInitFinished = app.deferred();
+
+  app(namespace,
+    {
+      debug: true
+    },
+    {
+      beforeRender: [whenAppInitFinished.promise()],
+      optionAdded: true,
+      whenAppInitFinished: whenAppInitFinished
+    });
+}(applitude));
+</code></pre>
+
+<h2>Applitude Responsibilities</h2>
+
+<ul>
+<li>
+<p><strong>Namespacing</strong>. Modules can only be registered once, in order to avoid duplicate code runs, and tricky associated bugs.</p>
+
+<pre><code>// A module to generate short unique ID strings...
+app.register('uniqueId', function uniqueId() {
+  return (new Date().getTime() &lt;&lt; 0).toString(36)
+      + ("0000" + (Math.random() * Math.pow(36, 4) &lt;&lt; 0).toString(36)).substr(-4);
+});
+
+// elsewhere...
+test('Applitude namespacing', function () {
+  equal(typeof app.uniqueId(), 'string',
+    '.register() should work with functions.');
+
+  app.register('uniqueId', function () {
+    return false;
+  });
+
+  equal(typeof app.uniqueId(), 'string',
+    '.register() should throw an error on duplicate register.');
+});
+</code></pre>
+</li>
+<li><p><strong>A sandbox</strong> to access libraries through a canonical interface, rather than calling library code directly. Doing so allows you to modify the implementation, or swap out the library completely with transparency to the application code.</p></li>
+<li><p><strong>Loading performance boost</strong>. Loading data blocks data rendering, so it makes sense to load data as early as possible using non-blocking means in order to render it as quickly as possible. Applitude decouples data loading from data rendering via .load() and .render() methods. .load() runs as early as possible, and .render() runs only after page ready and beforeRender have both finished.</p></li>
+<li>
+<p><strong>beforeRender</strong> is a list of promises which all must finish before .render() begins. For example, many apps will need i18n translations to load before any module is allowed to render. By adding an i18n promise to the application's beforeRender queue, you can postpone render until the translations are loaded. Using beforeRender can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.</p>
+
+<pre><code>var whenModuleReady = app.deferred();
+
+app.register('testModuleBeforeRender', {
+  beforeRender: [whenModuleReady]
+});
+</code></pre>
+</li>
+<li><p><strong>Environment</strong>. A canonical place to store application environment variables -- things like urls for development, staging, or production servers, etc... You can pass an environment object into the app in the initial applitude call.</p></li>
+<li>
+<p><strong>Mixins</strong>. Each module can declare a list of other modules to mix in with applitude. The new module can selectively override attributes from the mixed-in modules. The mixins later in the list will override attributes picked up from mixins earlier in the list... in other words, for collisions, the last mixin wins.</p>
+
+<pre><code>test('Applitude mixins', function () {
+  app.register('aMixin', {
+    foo: 'foo',
+    bar: 'bar'
+  });
+  app.register('usesMixin', {
+    bar: 'baz',
+    mixins: 'aMixin'
+  });
+
+  equal(app.usesMixin.foo, 'foo',
+    'Register should pull in module mixins.');
+
+  equal(app.usesMixin.bar, 'baz',
+    'Modules should be able to override mixins.');
+
+  equal(app.aMixin.bar, 'bar',
+    'Original mixin should not be modified by override.');
+});
+</code></pre>
+</li>
+<li><p><strong>Deferred utilities</strong> - Applitude relies on promises and deferreds from the jQuery library (along with other jQuery goodness, such as the page ready function). Applitude exposes a few Deferred utilities, including <code>.resolved</code> (a resolved promise), <code>.rejected</code> (a rejected promise), <code>.when()</code> (a utility that allows you to run callbacks only after all promises passed to it are resolved), and <code>.queue()</code>, like <code>.when()</code>, but you can add promises to the wait queue at any time. The promise returned by <code>.queue()</code> resolves when all of the promises in the queue are resolved. These utilities can be helpful for coordinating asynchronous events in your application.</p></li>
+</ul>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/dilvie" class="avatar"><img src="https://secure.gravatar.com/avatar/a42a7350945138024ad1d83df2fe7b9b?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-140.png" width="48" height="48"/></a> <a href="https://github.com/dilvie">dilvie</a> maintains <a href="https://github.com/dilvie/applitude">Applitude</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="http://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/dilvie/applitude/tarball/master" class="tar">tar</a><a href="https://github.com/dilvie/applitude/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-33799005-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+</body>
+</html>
