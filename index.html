@@ -52,7 +52,7 @@
 <p>The guiding philosophy of Applitude is “Less is more.” Applitude sets up the sandbox and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”</p>
 
 <p><strong>Status</strong> - Applitude is in production use with millions of monthly active users. However, it is very new, and is in use by relatively few projects. It might be buggy. It might not work as expected. It definitely isn't well documented. Please feel free to kick the tires and contribute bug fixes, but for now, only experts who feel confident to debug issues and contribute bug fixes should attempt to use this in a production codebase.
-There are <a href="http://applitude.herokuapp.com/">unit tests</a> covering most of the functionality.</p>
+There are <a href="http://applitude.herokuapp.com/">unit tests</a> covering most of the functionality. <a href="http://travis-ci.org/dilvie/applitude"><img src="https://secure.travis-ci.org/dilvie/applitude.png" alt="Build Status"></a></p>
 
 <h2>A Simple Applitude Module</h2>
 
@@ -85,7 +85,7 @@ There are <a href="http://applitude.herokuapp.com/">unit tests</a> covering most
 
 <p>Environment is made up of things like image hosting URLs which might vary from one host or CDN to another. Generally server side environments will also contain passwords, secrets, or tokens for communicating with third party APIs. Since the client-side JavaScript environment is not secure, you should not pass those secrets through to the JavaScript layer.</p>
 
-<p>Evironment variables should be passed into your application from your environment configuration, and not hard-coded. Your application should be portable to new hardware or hosts without any changes to your codebase.</p>
+<p>Environment variables should be passed into your application from your environment configuration, and not hard-coded. Your application should be portable to new hardware or hosts without any changes to your codebase.</p>
 
 <p>It might be tempting to pass a single environment string through and put logic in your code to determine URLs and so on, but that should be done at the configuration level wherever possible. That will make it easier to port your app to new environments.</p>
 
