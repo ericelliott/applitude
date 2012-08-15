@@ -14,7 +14,7 @@ View the slideshow: ["Introducing Applitude: Simple Module Management"](https://
 The guiding philosophy of Applitude is “Less is more.” Applitude sets up the sandbox and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”
 
 **Status** - Applitude is in production use with millions of monthly active users. However, it is very new, and is in use by relatively few projects. It might be buggy. It might not work as expected. It definitely isn't well documented. Please feel free to kick the tires and contribute bug fixes, but for now, only experts who feel confident to debug issues and contribute bug fixes should attempt to use this in a production codebase.
-There are [unit tests](http://applitude.herokuapp.com/) covering most of the functionality.
+There are [unit tests](http://applitude.herokuapp.com/) covering most of the functionality. [![Build Status](https://secure.travis-ci.org/dilvie/applitude.png)](http://travis-ci.org/dilvie/applitude)
 
 ## A Simple Applitude Module
 
