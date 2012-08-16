@@ -148,6 +148,49 @@
       ok(app.debugLog,
         'debugLog should exist');
     });
+
+    test('Simple events', function () {
+      stop();
+      app.events.on('a', function () {
+        ok(true,
+          'A triggered event should be listenable.');
+        start();
+      });
+      app.events.trigger('a');
+    });
+
+    test('Wildcard events', function () {
+      stop();
+      app.events.on('a.*', function () {
+        ok(true,
+          'A triggered event should be listenable.');
+        start();
+      });
+      app.events.trigger('a.b');
+    });
+
+    test('app.on() shortcut', function () {
+      stop();
+      app.on('a', function () {
+        ok(true,
+          'An event triggered on app.events should be'
+          + ' listenable with app.on().');
+        start();
+      });
+      app.events.trigger('a');
+    });
+
+    test('app.trigger() shortcut', function () {
+      stop();
+      app.events.on('a', function () {
+        ok(true,
+          'An event triggered with app.trigger() should be'
+          + ' listenable with app.events.on().');
+        start();
+      });
+      app.trigger('a');
+    });
+
   });
 
 }(applitude, jQuery));

@@ -73,7 +73,7 @@
       whenRenderReady = queue(),
       setModule;
 
-    setModule = function val(cursor, location, value, cb) {
+    setModule = function val(cursor, location, value) {
       var tree = location.split('.'),
         key = tree.shift(),
         returnValue;
@@ -134,7 +134,7 @@
         module.moduleNamespace = ns;
 
         newModule = setModule(app, ns, module, function () {
-          app.trigger('module_added' + app.appNamespace, ns);            
+          app.events.trigger('module_added' + app.appNamespace, ns);            
         });
 
         if (newModule) {
@@ -190,10 +190,18 @@
         environment: environment,
         appNamespace: appNs,
         options: options
-      }, events);
+      });
 
       return app;
     };
+
+    function on() {
+      app.events.on.apply(app.events, arguments);
+    }
+
+    function trigger() {
+      app.events.trigger.apply(app.events, arguments);
+    }
 
     o.extend(app, {
       deferred: deferred,
@@ -203,6 +211,8 @@
       queue: queue,
       o: o.extend(o),
       events: events,
+      on: on,
+      trigger: trigger,
       debugLog: debugLog
     });
 
@@ -223,6 +233,8 @@
       : window,
     jQuery,
     odotjs,
-    new EventEmitter2()));
+    new EventEmitter2({
+      wildcard: true
+    })));
 
 }());
