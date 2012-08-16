@@ -11,10 +11,11 @@ Applitude is a simple event-driven client-side JavaScript application architectu
 
 View the slideshow: ["Introducing Applitude: Simple Module Management"](https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&start=false&loop=false&delayms=10000)
 
+**Status** - Developer preview (stick to tested, documented features for best results). In production use with millions of monthly active users.
+There are [unit tests](http://applitude.herokuapp.com/) covering most of the functionality. [![Build Status](https://secure.travis-ci.org/dilvie/applitude.png)](http://travis-ci.org/dilvie/applitude)
+
 The guiding philosophy of Applitude is “Less is more.” Applitude sets up the sandbox and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”
 
-**Status** - Applitude is in production use with millions of monthly active users. However, it is very new, and is in use by relatively few projects. It might be buggy. It might not work as expected. It definitely isn't well documented. Please feel free to kick the tires and contribute bug fixes, but for now, only experts who feel confident to debug issues and contribute bug fixes should attempt to use this in a production codebase.
-There are [unit tests](http://applitude.herokuapp.com/) covering most of the functionality. [![Build Status](https://secure.travis-ci.org/dilvie/applitude.png)](http://travis-ci.org/dilvie/applitude)
 
 ## A Simple Applitude Module
 
@@ -77,6 +78,58 @@ Any other options will be made available on the `app.options` object. Here's a s
     }(applitude));
 
 ## Applitude Responsibilities
+
+### Events
+
+Modules should know as little as possible about each other. To that end, modules should communicate through a global event bus, supplied by the applitude sandbox. You can use `app.on()` to subscribe to events, and `app.trigger()` to publish.
+
+    app.on('a.*', function (data) { 
+        console.log(data);
+    });
+    
+    // later
+    app.trigger('a.b', 'hello, world'); // logs 'hello, world'
+
+Best practice is to get specific about the events you report, and always use your modules namespace to trigger. For example:
+
+    (function (app) {
+        var namespace = 'videoPlayer',
+            api;
+        
+        function bindEvents() {
+            app.$('#' + namespace).on('click', '#playButton', function (event) {
+                app.trigger('click.' + namespace, event);
+        }
+
+        // Wait for the dom to be ready before we try to 
+        api = {
+            render: bindEvents
+        };
+        
+        app.register(namespace, api);
+    }(applitude));
+    
+Events support wildcards. This way, you can implement cross-cutting concerns. For example, log every click in your app:
+
+    (function (app) {
+        var namespace = 'clickLogger',
+            api;
+        
+        app.on('click.*', function logData(event) {
+            // Implement real logging here. This just spits it into the in-memory app log.
+            app.log(event);
+        });
+        
+        function recent() {
+            // get recent log entries
+        }
+        
+        api = {
+            recent: recent
+        };
+        
+        app.register(namespace, api);
+    }(applitude));
 
 * **Namespacing**. Modules can only be registered once, in order to avoid duplicate code runs, and tricky associated bugs.
 
