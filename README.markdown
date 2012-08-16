@@ -1,4 +1,4 @@
-# Applitude - Simple module management.
+# Applitude.JS - Simple module management.
 
 Applitude is a simple event-driven client-side JavaScript application architecture and module management framework that serves the following needs:
 
