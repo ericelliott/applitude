@@ -92,20 +92,22 @@ Modules should know as little as possible about each other. To that end, modules
 
 Best practice is to get specific about the events you report, and always use your modules namespace to trigger. For example:
 
+
     (function (app) {
         var namespace = 'videoPlayer',
             api;
-        
+    
         function bindEvents() {
             app.$('#' + namespace).on('click', '#playButton', function (event) {
                 app.trigger('click.' + namespace, event);
+            });
         }
-
+    
         // Wait for the dom to be ready before we try to 
         api = {
             render: bindEvents
         };
-        
+    
         app.register(namespace, api);
     }(applitude));
     
