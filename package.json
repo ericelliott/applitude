@@ -24,7 +24,7 @@
     "test": "./test"
   },
   "dependencies": {
-  	"odotjs": "git@github.com:dilvie/odotjs.git",
+  	"odotjs": "~0.1.x",
   	"eventemitter2": "~0.4.x",
   	"jquery-browserify": "~1.7.x"
   },
