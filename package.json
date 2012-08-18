@@ -24,9 +24,9 @@
     "test": "./test"
   },
   "dependencies": {
-  	"odotjs": "https://github.com/dilvie/odotjs",
+  	"odotjs": "git@github.com:dilvie/odotjs.git",
   	"eventemitter2": "~0.4.x",
-  	"jquery": "~1.7.x"
+  	"jquery-browserify": "~1.7.x"
   },
   "devDependencies": {
     "tap": "~0.2.4"
