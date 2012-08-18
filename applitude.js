@@ -8,7 +8,8 @@
  * http://opensource.org/licenses/MIT
  */
 
-/*global jQuery, EventEmitter2, odotjs */
+/*global jQuery, EventEmitter2, odotjs, window, setTimeout,
+console, exports */
 (function () {
   'use strict';
   var deferredQueue = {};
@@ -209,7 +210,10 @@
       rejected: rejected,
       when: when,
       queue: queue,
-      o: o.extend(o),
+      o: o.extend(o, {
+        makeArray: $.makeArray,
+        isArray: $.isArray
+      }),
       events: events,
       on: on,
       trigger: trigger,
@@ -228,9 +232,8 @@
 
     root[namespace] = app;
 
-  }((typeof exports !== 'undefined')
-      ? exports
-      : window,
+  }((typeof exports !== 'undefined') ?
+      exports : window,
     jQuery,
     odotjs,
     new EventEmitter2({
