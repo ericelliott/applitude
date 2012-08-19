@@ -24,12 +24,15 @@
     "test": "./test"
   },
   "dependencies": {
+    "eventemitter2": "~0.4.x",
   	"odotjs": "~0.1.x",
-  	"eventemitter2": "~0.4.x",
-  	"jquery-browserify": "~1.7.x"
+    "fs-extra": "~0.1.x"
   },
   "devDependencies": {
     "tap": "~0.2.4"
+  },
+  "scripts": {
+  	"postinstall": "node ./scripts/install.js"
   },
   "engines": {
     "node": "~0.8.x",

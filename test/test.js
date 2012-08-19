@@ -1,3 +1,4 @@
+/*global test, ok, applitude, equal, start, expect, stop, jQuery*/
 (function (app, $) {
 
   $(function () {
@@ -20,19 +21,19 @@
 
       app.register('namespaceTest', 'fail');
       equal(app.namespaceTest, true,
-        '.register() fails on duplicate namespace.');
+        '.register() should not allow duplicate registrations.');
     });
 
     test('Applitude deep namespacing', function () {
-      equal(typeof app.utils.uniqueId(), 'string',
-        '.register() should work with functions.');
+      app.register('a.b.c', true);
 
-      app.register('utils.uniqueId', function () {
-        return false;
-      });
+      equal(app.a.b.c, true,
+        '.register() should work with deep namespaces.');
 
-      equal(typeof app.utils.uniqueId(), 'string',
-        '.register() should fail on duplicate register.');
+      app.register('a.b.c', false);
+
+      equal(app.a.b.c, true,
+        '.register() should not allow duplicate registrations.');
     });
 
     test('Applitude timing.', function () {
@@ -96,14 +97,12 @@
 
     test('Deferred utilities', function () {
       
-      ok(app.resolved.isResolved,
+      equal(app.resolved.state(), 'resolved',
         'app.resolved should be a resolved promise.');
-      ok(app.rejected.isRejected,
+      equal(app.rejected.state(), 'rejected',
         'app.rejected should be a rejected promise.');
-      ok(app.when(app.resolved).isResolved(),
-        '.when() should be available on applitude.');
-      ok(app.when(app.rejected).isRejected(),
-        '.when() should work for rejected state.');
+      ok(app.when(app.resolved).state(), 'resolved',
+        'app.when() should be available.');
 
     });
 
@@ -126,19 +125,19 @@
         start();
       });
 
-      equal(testQueue.isResolved(), false,
+      ok(testQueue.state() !== 'resolved',
         'Queue should not be resolved until all queued promises resolve.');
 
       taskA.resolve();
 
-      equal(testQueue.isResolved(), false,
+      ok(testQueue.state() !== 'resolved',
         'Queue should not be resolved until all queued promises resolve.');
 
       testQueue.push(taskC.promise());
 
       taskB.resolve();
 
-      equal(testQueue.isResolved(), false,
+      ok(testQueue.state() !== 'resolved',
         'Queue should not be resolved until all queued promises resolve.');            
 
       taskC.resolve();
@@ -173,8 +172,8 @@
       stop();
       app.on('a', function () {
         ok(true,
-          'An event triggered on app.events should be'
-          + ' listenable with app.on().');
+          'An event triggered on app.events should be' +
+          ' listenable with app.on().');
         start();
       });
       app.events.trigger('a');
@@ -184,8 +183,8 @@
       stop();
       app.events.on('a', function () {
         ok(true,
-          'An event triggered with app.trigger() should be'
-          + ' listenable with app.events.on().');
+          'An event triggered with app.trigger() should be ' +
+          'listenable with app.events.on().');
         start();
       });
       app.trigger('a');
