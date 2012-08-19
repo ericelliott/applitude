@@ -144,8 +144,16 @@ Access libraries and utulities through a canonical interface, rather than callin
 * `app.stringToArray()` transforms `'a, string'` to `['a', 'string']`
 * `app.uid()` returns a short random string suitable for unique ids
 * `app.o()` provides a [prototypal oo libarary called odotjs](http://dilvie.github.com/odotjs/).
-* `app.o.
+* `app.o.mapOptions` transforms any function into a polymorphic function which can take either a list of aurgemnts, or a named options hash.
 
+    function foo(param1, param2, param3) {
+        var options = mapOptions('param1, param2, param3', param1, param2, param3);
+        
+        // Log the value of param2, regardless of whether
+        // the function was called with a named parameters
+        // object, or comma separated arguments.
+        console.log(options.param2);
+    }
 
 ## Namespacing
 
