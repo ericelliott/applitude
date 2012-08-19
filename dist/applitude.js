@@ -10,14 +10,6 @@
 
 /*global jQuery, EventEmitter2, odotjs, window, setTimeout,
 console, exports */
-// Shim .forEach()
-if ( !Array.prototype.forEach ) {
-  Array.prototype.forEach = function(fn, scope) {
-    for(var i = 0, len = this.length; i < len; ++i) {
-      fn.call(scope || this, this[i], i, this);
-    }
-  };
-}
 
 (function () {
   'use strict';
@@ -79,6 +71,7 @@ if ( !Array.prototype.forEach ) {
       app,
       register,
       stringToArray,
+      uid,
       addMixins,
       whenRenderReady = queue(),
       setModule;
@@ -109,6 +102,17 @@ if ( !Array.prototype.forEach ) {
     stringToArray = function (input, pattern) {
       pattern = pattern || /\s*\,\s*/;
       return input.trim().split(pattern);
+    };
+
+    /**
+     * uid returns a short random string prepended with
+     * the current time. Fairly collision-safe.
+     **/
+    uid = function uid () {
+      return (new Date().getTime() << 0).toString(36) +
+          ("0000" + (Math.random() *
+            Math.pow(36, 4) << 0)
+            .toString(36)).substr(-4);
     };
 
     addMixins = function addMixins(module) {
@@ -219,10 +223,11 @@ if ( !Array.prototype.forEach ) {
       rejected: rejected,
       when: when,
       queue: queue,
-      o: o.extend(o, {
-        makeArray: $.makeArray,
-        isArray: $.isArray
-      }),
+      o: o,
+      $: $,
+      stringToArray: stringToArray,
+      isArray: $.isArray,
+      uid: uid,
       events: events,
       on: on,
       trigger: trigger,

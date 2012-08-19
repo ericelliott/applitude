@@ -1,4 +1,4 @@
-/*global test, ok, applitude, equal, start, expect, stop, jQuery*/
+/*global test, ok, applitude, equal, deepEqual, start, expect, stop, jQuery*/
 (function (app, $) {
 
   $(function () {
@@ -141,6 +141,29 @@
         'Queue should not be resolved until all queued promises resolve.');            
 
       taskC.resolve();
+    });
+
+    test('Utilities', function () {
+      deepEqual(app.stringToArray('a, b, c'), ['a', 'b', 'c'],
+        '.stringToArray() converts comma separated strings ' +
+        'to arrays.');
+
+      equal(app.isArray([1, 2, 3]), true,
+        '.isArray() should return true for arrays.');
+
+      equal(app.isArray({a:1, b:2, c:3}), false,
+        '.isArray() should return false for objects.');
+
+      equal(app.isArray('a, b, c'), false,
+        '.isArray() should return false for strings.');
+
+      equal(typeof app.uid(), 'string',
+        '.uid() should return a string.');
+
+      deepEqual(app.o.mapOptions('a, b, c', 1, 2, 3),
+        {a:1,b:2, c:3},
+        '.mapOptions() should map parameters to names, ' +
+        'and return the resulting named parameters hash.');
     });
 
     test('Logging', function () {

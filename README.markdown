@@ -133,63 +133,92 @@ Events support wildcards. This way, you can implement cross-cutting concerns. Fo
         app.register(namespace, api);
     }(applitude));
 
-* **Namespacing**. Modules can only be registered once, in order to avoid duplicate code runs, and tricky associated bugs.
+## Sandbox
 
-        // A module to generate short unique ID strings...
-        app.register('uniqueId', function uniqueId() {
-          return (new Date().getTime() << 0).toString(36)
-              + ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).substr(-4);
-        });
+Access libraries and utulities through a canonical interface, rather than calling library code directly. Doing so allows you to modify the implementation, or swap out the library completely with transparency to the application code.
+
+### Included utilities
+
+* A selector engine for dom utulities as `app.$()`.
+* `app.isArray()`
+* `app.stringToArray()` transforms `'a, string'` to `['a', 'string']`
+* `app.uid()` returns a short random string suitable for unique ids
+* `app.o()` provides a [prototypal oo libarary called odotjs](http://dilvie.github.com/odotjs/).
+* `app.o.
 
 
-        // elsewhere...
-        test('Applitude namespacing', function () {
-          equal(typeof app.uniqueId(), 'string',
-            '.register() should work with functions.');
+## Namespacing
+
+Modules can only be registered once, in order to avoid duplicate code runs, and tricky associated bugs.
+
+    // A module to generate short unique ID strings...
+    app.register('uniqueId', function uniqueId() {
+      return (new Date().getTime() << 0).toString(36)
+          + ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).substr(-4);
+    });
+
+
+    // elsewhere...
+    test('Applitude namespacing', function () {
+      equal(typeof app.uniqueId(), 'string',
+        '.register() should work with functions.');
+
+      app.register('uniqueId', function () {
+        return false;
+      });
+
+      equal(typeof app.uniqueId(), 'string',
+        '.register() should throw an error on duplicate register.');
+    });
+
+## Loading performance boost
+
+Loading data blocks data rendering, so it makes sense to load data as early as possible using non-blocking means in order to render it as quickly as possible. Applitude decouples data loading from data rendering via .load() and .render() methods. .load() runs as early as possible, and .render() runs only after page ready and beforeRender have both finished.
+
+## beforeRender 
+
+beforeRender is a list of promises which all must finish before .render() begins. For example, many apps will need i18n translations to load before any module is allowed to render. By adding an i18n promise to the application's beforeRender queue, you can postpone render until the translations are loaded. Using beforeRender can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.
+
+    var whenModuleReady = app.deferred();
+
+    app.register('testModuleBeforeRender', {
+      beforeRender: [whenModuleReady]
+    });
+
+
+## Mixins
+
+Each module can declare a list of other modules to mix in with applitude. The new module can selectively override attributes from the mixed-in modules. The mixins later in the list will override attributes picked up from mixins earlier in the list.
+
+    test('Applitude mixins', function () {
+      app.register('aMixin', {
+        foo: 'foo',
+        bar: 'bar'
+      });
+      app.register('usesMixin', {
+        bar: 'baz',
+        mixins: 'aMixin'
+      });
     
-          app.register('uniqueId', function () {
-            return false;
-          });
+      equal(app.usesMixin.foo, 'foo',
+        'Register should pull in module mixins.');
     
-          equal(typeof app.uniqueId(), 'string',
-            '.register() should throw an error on duplicate register.');
-        });
-
-* **A sandbox** to access libraries through a canonical interface, rather than calling library code directly. Doing so allows you to modify the implementation, or swap out the library completely with transparency to the application code.
-
-* **Loading performance boost**. Loading data blocks data rendering, so it makes sense to load data as early as possible using non-blocking means in order to render it as quickly as possible. Applitude decouples data loading from data rendering via .load() and .render() methods. .load() runs as early as possible, and .render() runs only after page ready and beforeRender have both finished.
-
-* **beforeRender** is a list of promises which all must finish before .render() begins. For example, many apps will need i18n translations to load before any module is allowed to render. By adding an i18n promise to the application's beforeRender queue, you can postpone render until the translations are loaded. Using beforeRender can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.
-
-        var whenModuleReady = app.deferred();
-  
-        app.register('testModuleBeforeRender', {
-          beforeRender: [whenModuleReady]
-        });
-
-* **Environment**. A canonical place to store application environment variables -- things like urls for development, staging, or production servers, etc... You can pass an environment object into the app in the initial applitude call.
-
-* **Mixins**. Each module can declare a list of other modules to mix in with applitude. The new module can selectively override attributes from the mixed-in modules. The mixins later in the list will override attributes picked up from mixins earlier in the list... in other words, for collisions, the last mixin wins.
+      equal(app.usesMixin.bar, 'baz',
+        'Modules should be able to override mixins.');
     
-        
-        test('Applitude mixins', function () {
-          app.register('aMixin', {
-            foo: 'foo',
-            bar: 'bar'
-          });
-          app.register('usesMixin', {
-            bar: 'baz',
-            mixins: 'aMixin'
-          });
-        
-          equal(app.usesMixin.foo, 'foo',
-            'Register should pull in module mixins.');
-        
-          equal(app.usesMixin.bar, 'baz',
-            'Modules should be able to override mixins.');
-        
-          equal(app.aMixin.bar, 'bar',
-            'Original mixin should not be modified by override.');
-        });
+      equal(app.aMixin.bar, 'bar',
+        'Original mixin should not be modified by override.');
+    });
 
-* **Deferred utilities** - Applitude relies on promises and deferreds from the jQuery library (along with other jQuery goodness, such as the page ready function). Applitude exposes a few Deferred utilities, including `.resolved` (a resolved promise), `.rejected` (a rejected promise), `.when()` (a utility that allows you to run callbacks only after all promises passed to it are resolved), and `.queue()`, like `.when()`, but you can add promises to the wait queue at any time. The promise returned by `.queue()` resolves when all of the promises in the queue are resolved. These utilities can be helpful for coordinating asynchronous events in your application.
+## Deferred utilities
+
+Applitude relies on promises and deferreds from the jQuery library (along with other jQuery goodness, such as the page ready function). 
+
+Applitude exposes a few Deferred utilities, including:
+
+* `.resolved` - a resolved promise
+* `.rejected` - a rejected promise
+* `.when()` - a utility that allows you to run callbacks only after all promises passed to it are resolved
+* `.queue()` - like `.when()`, but you can add promises to the wait queue at any time.
+
+These utilities can be helpful for coordinating asynchronous events in your application.
