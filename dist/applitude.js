@@ -10,6 +10,15 @@
 
 /*global jQuery, EventEmitter2, odotjs, window, setTimeout,
 console, exports */
+// Shim .forEach()
+if ( !Array.prototype.forEach ) {
+  Array.prototype.forEach = function(fn, scope) {
+    for(var i = 0, len = this.length; i < len; ++i) {
+      fn.call(scope || this, this[i], i, this);
+    }
+  };
+}
+
 (function () {
   'use strict';
   var deferredQueue = {};
