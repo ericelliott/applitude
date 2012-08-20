@@ -9,7 +9,7 @@ Applitude is a simple event-driven client-side JavaScript application architectu
 * Mixins
 * Deferred utilities
 
-View the slideshow: ["Introducing Applitude: Simple Module Management"](https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&start=false&loop=false&delayms=10000)
+# **View the slideshow: ["Introducing Applitude: Simple Module Management"](https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&start=false&loop=false&delayms=10000)**
 
 **Status** - Developer preview (stick to tested, documented features for best results). In production use with millions of monthly active users.
 There are [unit tests](http://applitude.herokuapp.com/) covering most of the functionality. [![Build Status](https://secure.travis-ci.org/dilvie/applitude.png)](http://travis-ci.org/dilvie/applitude)
