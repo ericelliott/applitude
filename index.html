@@ -47,41 +47,139 @@
 <li>Loading performance boost</li>
 <li>Mixins</li>
 <li>Deferred utilities</li>
-</ul><p>View the slideshow: <a href="https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&amp;start=false&amp;loop=false&amp;delayms=10000">"Introducing Applitude: Simple Module Management"</a></p>
+</ul><h1><strong>View the slideshow: <a href="https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&amp;start=false&amp;loop=false&amp;delayms=10000">"Introducing Applitude: Simple Module Management"</a></strong></h1>
 
 <p><strong>Status</strong> - Developer preview (stick to tested, documented features for best results). In production use with millions of monthly active users.
 There are <a href="http://applitude.herokuapp.com/">unit tests</a> covering most of the functionality. <a href="http://travis-ci.org/dilvie/applitude"><img src="https://secure.travis-ci.org/dilvie/applitude.png" alt="Build Status"></a></p>
 
 <p>The guiding philosophy of Applitude is “Less is more.” Applitude sets up the sandbox and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”</p>
 
-<h2>A Simple Applitude Module</h2>
+<p>Applitude was created to illustrate how to implement a client-side JavaScript application architecture for the upcoming book "Programming JavaScript Applications" (O'Reilly).</p>
 
-<p><em>Tip:</em> Wrap your module with an Immediately Invoked Anonymous Expression (IIFE), and pass applitude into it to create a handy 'app' shortcut in your code:</p>
+<h2>Getting started</h2>
 
-<pre><code>(function (app) {
-  'use strict';
-
-  /**
-   * uniqueId
-   * returns a short random string, prepended with epoch time
-   * converted into a short sequence of characters.
-   * 
-   * @return [String] 
-   */
-  app.register('uniqueId', function uniqueId() {
-    return (new Date().getTime() &lt;&lt; 0).toString(36)
-        + ("0000" + (Math.random() * Math.pow(36, 4) &lt;&lt; 0).toString(36)).substr(-4);
-  });
-
-}(applitude));
+<pre><code>$ git clone git://github.com/dilvie/applitude.git
 </code></pre>
 
-<h2>Create an app</h2>
+<p>If you already have the dependencies ready, just drop <code>applitude/dist/applitude.js</code> into your project's lib folder and include it in your HTML build after the dependencies have loaded.</p>
+
+<p>If you need the dependencies as well, you can use npm to pull them in (with the exception of jQuery). They will be installed in <code>applitude/lib/</code>.</p>
+
+<p>If you don't have node installed, you can download it from <code>http://nodejs.org/download/</code>.</p>
+
+<pre><code>$ cd applitude
+$ npm install
+</code></pre>
+
+<h3>Create an app</h3>
 
 <pre><code>app(namespace, environmentObject, optionsObject);
 </code></pre>
 
-<h3>Environment</h3>
+<h3>Create your first applitude module</h3>
+
+<p>First you'll need an IIFE (Immediately Invoked Function Expression) for encapsulation:</p>
+
+<pre><code>(function (app) {
+    // your code here
+}(applitude));
+</code></pre>
+
+<p>And a namespace:</p>
+
+<pre><code>(function (app) {
+  // namespace should be a var
+  var namespace = 'hello';
+}(applitude));
+</code></pre>
+
+<p>Provide an API:</p>
+
+<pre><code>(function (app) {
+  'use strict';
+  var namespace = 'hello',
+    api;
+
+  function hello() {
+    return 'hello, world';
+  }
+
+  api = {
+    hello: hello
+  };
+
+  //..
+
+}(applitude));
+</code></pre>
+
+<p>Register your module:</p>
+
+<pre><code>(function (app) {
+  'use strict';
+  var namespace = 'hello',
+    api;
+
+  function hello() {
+    return 'hello, world';
+  }
+
+  api = {
+    hello: hello
+  };
+
+  app.register(namespace, api);
+}(applitude));
+</code></pre>
+
+<h3>Loading and Rendering</h3>
+
+<p>If you need to fetch some data asynchronously before you render your module, Applitude helps speed things up by launching your asynchronous calls as early as possible. Just load your data in the <code>.load()</code> method. For example, grab Skrillex info from BandsInTown:</p>
+
+<pre><code>(function (app) {
+  'use strict';
+  var namespace = 'skrillexInfo',
+    api,
+    data,
+    whenLoaded;
+
+  function load() {
+    var url = 'http://api.bandsintown.com/artists/Skrillex.' +
+    'json?api_version=2.0&amp;app_id=YOUR_APP_ID';
+
+    whenLoaded = app.get(url);
+    whenLoaded.done(function (response) {
+      data = response;
+    });
+
+    return whenLoaded.promise();
+  }
+
+  function render() {
+    // do something with data at render time.
+  }
+
+  api = {
+    load: load,
+    render: render
+  };
+
+  app.register(namespace, api);
+}(applitude));
+</code></pre>
+
+<h3>beforeRender</h3>
+
+<p>beforeRender is a list of promises which all must finish before .render() begins. For example, many apps will need i18n translations to load before any module is allowed to render. By adding an i18n promise to the application's beforeRender queue, you can postpone render until the translations are loaded. Using beforeRender can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.</p>
+
+<pre><code>var whenModuleReady = app.deferred();
+
+app.register('testModuleBeforeRender', {
+  beforeRender: [whenModuleReady]
+});
+</code></pre>
+
+<h2>Environment</h2>
 
 <p>Environment is made up of things like image hosting URLs which might vary from one host or CDN to another. Generally server side environments will also contain passwords, secrets, or tokens for communicating with third party APIs. Since the client-side JavaScript environment is not secure, you should not pass those secrets through to the JavaScript layer.</p>
 
@@ -95,7 +193,7 @@ There are <a href="http://applitude.herokuapp.com/">unit tests</a> covering most
 
 <p>For more on application configuration, see <a href="http://www.12factor.net/config">"The Twelve-Factor App"</a></p>
 
-<h3>Options</h3>
+<h2>Options</h2>
 
 <p>It will also look for a beforeRender array of promises. If passed, no modules will render until all beforeRender promises have resolved.</p>
 
@@ -175,15 +273,32 @@ app.trigger('a.b', 'hello, world'); // logs 'hello, world'
 }(applitude));
 </code></pre>
 
+<h2>Sandbox</h2>
+
+<p>Access libraries and utilities through a canonical interface, rather than calling library code directly. Doing so allows you to modify the implementation, or swap out the library completely with transparency to the application code.</p>
+
+<h3>Included utilities</h3>
+
 <ul>
+<li>A selector engine for dom utulities as <code>app.$()</code>.</li>
+<li><code>app.isArray()</code></li>
 <li>
-<p><strong>Namespacing</strong>. Modules can only be registered once, in order to avoid duplicate code runs, and tricky associated bugs.</p>
+<code>app.stringToArray()</code> transforms <code>'a, string'</code> to <code>['a', 'string']</code>
+</li>
+<li>
+<code>app.uid()</code> returns a short random string suitable for unique ids</li>
+<li>
+<code>app.o()</code> provides a <a href="http://dilvie.github.com/odotjs/">prototypal oo libarary called odotjs</a>.</li>
+</ul><h2>Namespacing</h2>
+
+<p>Modules can only be registered once, in order to avoid duplicate code runs, and tricky associated bugs.</p>
 
 <pre><code>// A module to generate short unique ID strings...
 app.register('uniqueId', function uniqueId() {
   return (new Date().getTime() &lt;&lt; 0).toString(36)
       + ("0000" + (Math.random() * Math.pow(36, 4) &lt;&lt; 0).toString(36)).substr(-4);
 });
+
 
 // elsewhere...
 test('Applitude namespacing', function () {
@@ -198,22 +313,10 @@ test('Applitude namespacing', function () {
     '.register() should throw an error on duplicate register.');
 });
 </code></pre>
-</li>
-<li><p><strong>A sandbox</strong> to access libraries through a canonical interface, rather than calling library code directly. Doing so allows you to modify the implementation, or swap out the library completely with transparency to the application code.</p></li>
-<li><p><strong>Loading performance boost</strong>. Loading data blocks data rendering, so it makes sense to load data as early as possible using non-blocking means in order to render it as quickly as possible. Applitude decouples data loading from data rendering via .load() and .render() methods. .load() runs as early as possible, and .render() runs only after page ready and beforeRender have both finished.</p></li>
-<li>
-<p><strong>beforeRender</strong> is a list of promises which all must finish before .render() begins. For example, many apps will need i18n translations to load before any module is allowed to render. By adding an i18n promise to the application's beforeRender queue, you can postpone render until the translations are loaded. Using beforeRender can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.</p>
 
-<pre><code>var whenModuleReady = app.deferred();
+<h2>Mixins</h2>
 
-app.register('testModuleBeforeRender', {
-  beforeRender: [whenModuleReady]
-});
-</code></pre>
-</li>
-<li><p><strong>Environment</strong>. A canonical place to store application environment variables -- things like urls for development, staging, or production servers, etc... You can pass an environment object into the app in the initial applitude call.</p></li>
-<li>
-<p><strong>Mixins</strong>. Each module can declare a list of other modules to mix in with applitude. The new module can selectively override attributes from the mixed-in modules. The mixins later in the list will override attributes picked up from mixins earlier in the list... in other words, for collisions, the last mixin wins.</p>
+<p>Each module can declare a list of other modules to mix in with applitude. The new module can selectively override attributes from the mixed-in modules. The mixins later in the list will override attributes picked up from mixins earlier in the list.</p>
 
 <pre><code>test('Applitude mixins', function () {
   app.register('aMixin', {
@@ -235,9 +338,23 @@ app.register('testModuleBeforeRender', {
     'Original mixin should not be modified by override.');
 });
 </code></pre>
-</li>
-<li><p><strong>Deferred utilities</strong> - Applitude relies on promises and deferreds from the jQuery library (along with other jQuery goodness, such as the page ready function). Applitude exposes a few Deferred utilities, including <code>.resolved</code> (a resolved promise), <code>.rejected</code> (a rejected promise), <code>.when()</code> (a utility that allows you to run callbacks only after all promises passed to it are resolved), and <code>.queue()</code>, like <code>.when()</code>, but you can add promises to the wait queue at any time. The promise returned by <code>.queue()</code> resolves when all of the promises in the queue are resolved. These utilities can be helpful for coordinating asynchronous events in your application.</p></li>
-</ul>
+
+<h2>Deferred utilities</h2>
+
+<p>Applitude relies on promises and deferreds from the jQuery library (along with other jQuery goodness, such as the page ready function). </p>
+
+<p>Applitude exposes a few Deferred utilities, including:</p>
+
+<ul>
+<li>
+<code>.resolved</code> - a resolved promise</li>
+<li>
+<code>.rejected</code> - a rejected promise</li>
+<li>
+<code>.when()</code> - a utility that allows you to run callbacks only after all promises passed to it are resolved</li>
+<li>
+<code>.queue()</code> - like <code>.when()</code>, but you can add promises to the wait queue at any time.</li>
+</ul><p>These utilities can be helpful for coordinating asynchronous events in your application.</p>
         </article>
       </div>
     </div>
