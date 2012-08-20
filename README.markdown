@@ -16,6 +16,8 @@ There are [unit tests](http://applitude.herokuapp.com/) covering most of the fun
 
 The guiding philosophy of Applitude is “Less is more.” Applitude sets up the sandbox and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”
 
+Applitude was created to illustrate how to implement a client-side JavaScript application architecture for the upcoming book "Programming JavaScript Applications" (O'Reilly).
+
 
 ## Getting started
 
