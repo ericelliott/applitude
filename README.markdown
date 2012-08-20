@@ -229,7 +229,7 @@ Events support wildcards. This way, you can implement cross-cutting concerns. Fo
 
 ## Sandbox
 
-Access libraries and utulities through a canonical interface, rather than calling library code directly. Doing so allows you to modify the implementation, or swap out the library completely with transparency to the application code.
+Access libraries and utilities through a canonical interface, rather than calling library code directly. Doing so allows you to modify the implementation, or swap out the library completely with transparency to the application code.
 
 ### Included utilities
 
