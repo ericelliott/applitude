@@ -235,11 +235,11 @@ Access libraries and utilities through a canonical interface, rather than callin
 
 ### Included utilities
 
-* A selector engine for dom utulities as `app.$()`.
-* `app.isArray()`
+* `app.$()` - A selector engine for dom utulities
+* `app.isArray()` - returns true if the argument is an array
 * `app.stringToArray()` transforms `'a, string'` to `['a', 'string']`
 * `app.uid()` returns a short random string suitable for unique ids
-* `app.o()` provides a [prototypal oo libarary called odotjs](http://dilvie.github.com/odotjs/).
+* `app.o()` provides a [prototypal oo libarary called odotjs](http://dilvie.github.com/odotjs/)
 
 
 ## Namespacing
