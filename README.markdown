@@ -21,7 +21,7 @@ Applitude was created to illustrate how to implement a client-side JavaScript ap
 ## Who's Using Applitude?
 
 * [Tout](http://tout.com/)
-* [Your company here](https://github.com/dilvie/applitude/issues/new) - Drop me a note if you're using Applitude.
+* [Your company here](https://github.com/dilvie/applitude/issues/new?title=Add+Me+to+the+Applitude+User+List) - Drop me a note if you're using Applitude.
 
 ## Getting started
 
