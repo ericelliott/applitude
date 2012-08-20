@@ -18,6 +18,10 @@ The guiding philosophy of Applitude is “Less is more.” Applitude sets up the
 
 Applitude was created to illustrate how to implement a client-side JavaScript application architecture for the upcoming book "Programming JavaScript Applications" (O'Reilly).
 
+## Who's Using Applitude?
+
+* [Tout](http://tout.com/)
+* [Your company here](https://github.com/dilvie/applitude/issues/new) - Drop me a note if you're using Applitude.
 
 ## Getting started
 
