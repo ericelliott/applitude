@@ -225,6 +225,7 @@ console, exports */
       queue: queue,
       o: o,
       $: $,
+      get: $.get,
       stringToArray: stringToArray,
       isArray: $.isArray,
       uid: uid,

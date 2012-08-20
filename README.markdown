@@ -17,32 +17,126 @@ There are [unit tests](http://applitude.herokuapp.com/) covering most of the fun
 The guiding philosophy of Applitude is “Less is more.” Applitude sets up the sandbox and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”
 
 
-## A Simple Applitude Module
+## Getting started
 
-*Tip:* Wrap your module with an Immediately Invoked Anonymous Expression (IIFE), and pass applitude into it to create a handy 'app' shortcut in your code:
+    $ git clone git://github.com/dilvie/applitude.git
 
-    (function (app) {
-      'use strict';
-    
-      /**
-       * uniqueId
-       * returns a short random string, prepended with epoch time
-       * converted into a short sequence of characters.
-       * 
-       * @return [String] 
-       */
-      app.register('uniqueId', function uniqueId() {
-        return (new Date().getTime() << 0).toString(36)
-            + ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).substr(-4);
-      });
-    
-    }(applitude));
+If you already have the dependencies ready, just drop `applitude/dist/applitude.js` into your project's lib folder and include it in your HTML build after the dependencies have loaded.
 
-## Create an app
+If you need the dependencies as well, you can use npm to pull them in (with the exception of jQuery). They will be installed in `applitude/lib/`.
+
+If you don't have node installed, you can download it from `http://nodejs.org/download/`.
+
+    $ cd applitude
+    $ npm install
+
+### Create an app
 
     app(namespace, environmentObject, optionsObject);
 
-### Environment
+### Create your first applitude module
+
+First you'll need an IIFE (Immediately Invoked Function Expression) for encapsulation:
+    
+    (function (app) {
+        // your code here
+    }(applitude));
+
+
+And a namespace:
+
+    (function (app) {
+      // namespace should be a var
+      var namespace = 'hello';
+    }(applitude));
+
+
+Provide an API:
+
+    (function (app) {
+      'use strict';
+      var namespace = 'hello',
+        api;
+    
+      function hello() {
+        return 'hello, world';
+      }
+    
+      api = {
+        hello: hello
+      };
+    
+      //..
+
+    }(applitude));
+
+
+Register your module:
+
+    (function (app) {
+      'use strict';
+      var namespace = 'hello',
+        api;
+    
+      function hello() {
+        return 'hello, world';
+      }
+    
+      api = {
+        hello: hello
+      };
+    
+      app.register(namespace, api);
+    }(applitude));
+
+### Loading and Rendering
+
+If you need to fetch some data asynchronously before you render your module, Applitude helps speed things up by launching your asynchronous calls as early as possible. Just load your data in the `.load()` method. For example, grab Skrillex info from BandsInTown:
+
+    (function (app) {
+      'use strict';
+      var namespace = 'skrillexInfo',
+        api,
+        data,
+        whenLoaded;
+    
+      function load() {
+        var url = 'http://api.bandsintown.com/artists/Skrillex.' +
+        'json?api_version=2.0&app_id=YOUR_APP_ID';
+
+        whenLoaded = app.get(url);
+        whenLoaded.done(function (response) {
+          data = response;
+        });
+
+        return whenLoaded.promise();
+      }
+
+      function render() {
+        // do something with data at render time.
+      }
+    
+      api = {
+        load: load,
+        render: render
+      };
+    
+      app.register(namespace, api);
+    }(applitude));
+
+
+### beforeRender 
+
+beforeRender is a list of promises which all must finish before .render() begins. For example, many apps will need i18n translations to load before any module is allowed to render. By adding an i18n promise to the application's beforeRender queue, you can postpone render until the translations are loaded. Using beforeRender can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.
+
+    var whenModuleReady = app.deferred();
+
+    app.register('testModuleBeforeRender', {
+      beforeRender: [whenModuleReady]
+    });
+
+
+## Environment
 
 Environment is made up of things like image hosting URLs which might vary from one host or CDN to another. Generally server side environments will also contain passwords, secrets, or tokens for communicating with third party APIs. Since the client-side JavaScript environment is not secure, you should not pass those secrets through to the JavaScript layer.
 
@@ -56,7 +150,7 @@ Applitude expects at least one varible to be defined: `debug` (Bool) If `debug` 
 
 For more on application configuration, see ["The Twelve-Factor App"](http://www.12factor.net/config)
 
-### Options
+## Options
 
 It will also look for a beforeRender array of promises. If passed, no modules will render until all beforeRender promises have resolved.
 
@@ -144,16 +238,7 @@ Access libraries and utulities through a canonical interface, rather than callin
 * `app.stringToArray()` transforms `'a, string'` to `['a', 'string']`
 * `app.uid()` returns a short random string suitable for unique ids
 * `app.o()` provides a [prototypal oo libarary called odotjs](http://dilvie.github.com/odotjs/).
-* `app.o.mapOptions` transforms any function into a polymorphic function which can take either a list of aurgemnts, or a named options hash.
 
-        function foo(param1, param2, param3) {
-            var options = app.o.mapOptions('param1, param2, param3', param1, param2, param3);
-            
-            // Log the value of param2, regardless of whether
-            // the function was called with a named parameters
-            // object, or comma separated arguments.
-            console.log(options.param2);
-        }
 
 ## Namespacing
 
@@ -177,20 +262,6 @@ Modules can only be registered once, in order to avoid duplicate code runs, and 
 
       equal(typeof app.uniqueId(), 'string',
         '.register() should throw an error on duplicate register.');
-    });
-
-## Loading performance boost
-
-Loading data blocks data rendering, so it makes sense to load data as early as possible using non-blocking means in order to render it as quickly as possible. Applitude decouples data loading from data rendering via .load() and .render() methods. .load() runs as early as possible, and .render() runs only after page ready and beforeRender have both finished.
-
-## beforeRender 
-
-beforeRender is a list of promises which all must finish before .render() begins. For example, many apps will need i18n translations to load before any module is allowed to render. By adding an i18n promise to the application's beforeRender queue, you can postpone render until the translations are loaded. Using beforeRender can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.
-
-    var whenModuleReady = app.deferred();
-
-    app.register('testModuleBeforeRender', {
-      beforeRender: [whenModuleReady]
     });
 
 
