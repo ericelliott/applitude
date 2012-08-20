@@ -280,15 +280,18 @@ app.trigger('a.b', 'hello, world'); // logs 'hello, world'
 <h3>Included utilities</h3>
 
 <ul>
-<li>A selector engine for dom utulities as <code>app.$()</code>.</li>
-<li><code>app.isArray()</code></li>
+<li>
+<code>app.$()</code> - A selector engine for dom utulities</li>
+<li>
+<code>app.isArray()</code> - returns true if the argument is an array</li>
 <li>
 <code>app.stringToArray()</code> transforms <code>'a, string'</code> to <code>['a', 'string']</code>
 </li>
 <li>
 <code>app.uid()</code> returns a short random string suitable for unique ids</li>
 <li>
-<code>app.o()</code> provides a <a href="http://dilvie.github.com/odotjs/">prototypal oo libarary called odotjs</a>.</li>
+<code>app.o()</code> provides a <a href="http://dilvie.github.com/odotjs/">prototypal oo libarary called odotjs</a>
+</li>
 </ul><h2>Namespacing</h2>
 
 <p>Modules can only be registered once, in order to avoid duplicate code runs, and tricky associated bugs.</p>
