@@ -100,8 +100,14 @@ console, exports */
     };
 
     stringToArray = function (input, pattern) {
+      var result;
       pattern = pattern || /\s*\,\s*/;
-      return input.trim().split(pattern);
+
+      result = (typeof input !== 'string') ?
+        result = [] :
+        result = input.trim().split(pattern);
+
+      return result;
     };
 
     /**

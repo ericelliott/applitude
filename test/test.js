@@ -148,6 +148,14 @@
         '.stringToArray() converts comma separated strings ' +
         'to arrays.');
 
+      deepEqual(app.stringToArray(undefined), [],
+        '.stringToArray() should handle undefined values');
+
+
+      deepEqual(app.stringToArray('0'), ['0'],
+        '.stringToArray() should handle falsy values');
+
+
       equal(app.isArray([1, 2, 3]), true,
         '.isArray() should return true for arrays.');
 
