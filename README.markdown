@@ -103,7 +103,7 @@ The first is the load phase. Your `.load()` method is called by Applitude as soo
 
 The `.render()` method is called after:
 1 all `.beforeRender` callbacks have fired, and
-1 the page ready event has fired.
+1 the DOM is ready to be manipulated
 
 If you need to fetch some data asynchronously before you render your module, Applitude helps speed things up by launching your asynchronous calls as early as possible. Just load your data in the `.load()` method. For example, grab Skrillex info from BandsInTown:
 
