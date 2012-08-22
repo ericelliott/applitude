@@ -97,9 +97,13 @@ Register your module:
 
 ### Loading and Rendering
 
-Module initialization is broken into two phases.
+Module initialization is broken into two phases:
+
+#### Load
 
 The first is the load phase. Your `.load()` method is called by Applitude as soon as your script is evaluated and the `app.register()` method is called.
+
+#### Render
 
 The `.render()` method is called after:
 
