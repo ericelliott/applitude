@@ -102,6 +102,7 @@ Module initialization is broken into two phases.
 The first is the load phase. Your `.load()` method is called by Applitude as soon as your script is evaluated and the `app.register()` method is called.
 
 The `.render()` method is called after:
+
 1 all `.beforeRender` callbacks have fired, and
 1 the DOM is ready to be manipulated
 
