@@ -97,6 +97,14 @@ Register your module:
 
 ### Loading and Rendering
 
+Module initialization is broken into two phases.
+
+The first is the load phase. Your `.load()` method is called by Applitude as soon as your script is evaluated and the `app.register()` method is called.
+
+The `.render()` method is called after:
+1 all `.beforeRender` callbacks have fired, and
+1 the page ready event has fired.
+
 If you need to fetch some data asynchronously before you render your module, Applitude helps speed things up by launching your asynchronous calls as early as possible. Just load your data in the `.load()` method. For example, grab Skrillex info from BandsInTown:
 
     (function (app) {
@@ -130,6 +138,9 @@ If you need to fetch some data asynchronously before you render your module, App
       app.register(namespace, api);
     }(applitude));
 
+Tip: Try not to do anything blocking in your `.load()` method. For example, you might want to fetch the data that you need to complete your page render, but if you're loading a fairly large collection and you need to iterate over the collection and do some data processing, save the data processing step for `.render()` time, when you're not blocking the page render process.
+
+*Note that you cannot manipulate the DOM at all in your `.load()` method.*
 
 ### beforeRender 
 
