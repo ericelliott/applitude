@@ -140,7 +140,20 @@ $ npm install
 
 <h3>Loading and Rendering</h3>
 
-<p>If you need to fetch some data asynchronously before you render your module, Applitude helps speed things up by launching your asynchronous calls as early as possible. Just load your data in the <code>.load()</code> method. For example, grab Skrillex info from BandsInTown:</p>
+<p>Module initialization is broken into two phases:</p>
+
+<h4>Load</h4>
+
+<p>The first is the load phase. Your <code>.load()</code> method is called by Applitude as soon as your script is evaluated and the <code>app.register()</code> method is called.</p>
+
+<h4>Render</h4>
+
+<p>The <code>.render()</code> method is called after:</p>
+
+<ol>
+<li>all <code>.beforeRender</code> callbacks have fired, and</li>
+<li>the DOM is ready to be manipulated</li>
+</ol><p>If you need to fetch some data asynchronously before you render your module, Applitude helps speed things up by launching your asynchronous calls as early as possible. Just load your data in the <code>.load()</code> method. For example, grab Skrillex info from BandsInTown:</p>
 
 <pre><code>(function (app) {
   'use strict';
@@ -173,6 +186,10 @@ $ npm install
   app.register(namespace, api);
 }(applitude));
 </code></pre>
+
+<p>Tip: Try not to do anything blocking in your <code>.load()</code> method. For example, you might want to fetch the data that you need to complete your page render, but if you're loading a fairly large collection and you need to iterate over the collection and do some data processing, save the data processing step for <code>.render()</code> time, when you're not blocking the page render process.</p>
+
+<p><em>Note that you cannot manipulate the DOM at all in your <code>.load()</code> method.</em></p>
 
 <h3>beforeRender</h3>
 
@@ -369,7 +386,7 @@ test('Applitude namespacing', function () {
     </div>
     <footer>
       <div class="owner">
-      <p><a href="https://github.com/dilvie" class="avatar"><img src="https://secure.gravatar.com/avatar/a42a7350945138024ad1d83df2fe7b9b?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-140.png" width="48" height="48"/></a> <a href="https://github.com/dilvie">dilvie</a> maintains <a href="https://github.com/dilvie/applitude">Applitude</a></p>
+      <p><a href="https://github.com/dilvie" class="avatar"><img src="https://secure.gravatar.com/avatar/a42a7350945138024ad1d83df2fe7b9b?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" width="48" height="48"/></a> <a href="https://github.com/dilvie">dilvie</a> maintains <a href="https://github.com/dilvie/applitude">Applitude</a></p>
 
 
       </div>
