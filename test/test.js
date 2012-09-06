@@ -1,5 +1,6 @@
 /*global test, ok, applitude, equal, deepEqual, start, expect, stop, jQuery*/
 (function (app, $) {
+  'use strict';
   (function (app) {
     var whenAppInitFinished = app.deferred();
 

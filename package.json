@@ -24,16 +24,17 @@
     "test": "./test"
   },
   "dependencies": {
+    "grunt": "~0.3.x",
     "eventemitter2": "~0.4.x",
     "odotjs": "~0.2.x",
     "fs-extra": "~0.1.x"
   },
   "devDependencies": {
-    "grunt": "~0.3.x",
     "tap": "~0.2.4"
   },
   "scripts": {
-    "postinstall": "node ./scripts/install.js"
+    "postinstall": "node ./scripts/install.js",
+    "test": "grunt"
   },
   "engines": {
     "node": "~0.8.x",
