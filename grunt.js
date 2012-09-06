@@ -28,6 +28,10 @@ module.exports = function(grunt) {
       dist: {
         src: ['src/applitude.js'],
         dest: 'dist/applitude.js'
+      },
+      bundle: {
+        src: ['node_modules/eventemitter2/lib/eventemitter2.js', 'node_modules/odotjs/o.js', 'dist/applitude.js'],
+        dest: 'dist/applitude.bundle.js'
       }
     },
     qunit: {

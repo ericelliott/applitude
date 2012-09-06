@@ -1,6 +1,6 @@
 {
   "name": "applitude",
-  "version": "0.4.0",
+  "version": "0.5.1",
   "description": "Simple Module Management",
   "author": {
     "name": "Eric Elliott",
@@ -28,9 +28,6 @@
     "eventemitter2": "~0.4.x",
     "odotjs": "~0.2.x",
     "fs-extra": "~0.1.x"
-  },
-  "devDependencies": {
-    "tap": "~0.2.4"
   },
   "scripts": {
     "postinstall": "node ./scripts/install.js",
