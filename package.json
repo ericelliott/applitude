@@ -1,6 +1,6 @@
 {
   "name": "applitude",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Simple Module Management",
   "author": {
     "name": "Eric Elliott",
@@ -29,6 +29,7 @@
     "fs-extra": "~0.1.x"
   },
   "devDependencies": {
+    "grunt": "~0.3.x",
     "tap": "~0.2.4"
   },
   "scripts": {

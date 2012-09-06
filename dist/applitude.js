@@ -9,256 +9,188 @@
  */
 
 /*global jQuery, EventEmitter2, odotjs, window, setTimeout,
-console, exports */
+console, exports, navigator */
 
-(function () {
+(function (root, $, o, events) {
   'use strict';
-  var deferredQueue = {};
-
-  /**
-   * deferredQueue - a deferred / promise queue to manage
-   * asynchronous event timing.
-   * 
-   * Adpated from jQuery.deferred-queue under a BSD License:
-   * https://bitbucket.org/masklinn/jquery.deferred-queue
-   */
-  (function ($) {
-    $.extend(deferredQueue, {
-      queue: function () {
-        var queueDeferred = $.Deferred(),
-          promises = 0,
-          promise,
-          resolve;
-
-        resolve = function resolve() {
-          if (--promises > 0) {
-            return;
-          }
-          setTimeout($.proxy(queueDeferred, 'resolve'), 0);
-        };
-
-        promise = $.extend(queueDeferred.promise(), {
-          push: function () {
-            promises += 1;
-            $.when.apply(null, arguments)
-              .then(resolve, $.proxy(queueDeferred, 'reject'));
-            return this;
-          }
-        });
-
-        if (arguments.length) {
-          promise.push.apply(promise, arguments);
-        }
-
-        return promise;
-      }
-    });
-  }(jQuery));
-
-  (function (root, $, o, events) {
-    var namespace = 'applitude',
-      debugLog = [],
-      loadErrors = {},
-
-      /**
-       * Deferred utilities
-       */
-      deferred = $.Deferred,
-      when = $.when,
-      resolved = deferred().resolve().promise(),
-      rejected = deferred().reject().promise(),
-      queue = deferredQueue.queue,
-      app,
-      register,
-      stringToArray,
-      uid,
-      addMixins,
-      whenRenderReady = queue(),
-      setModule;
-
-    setModule = function val(cursor, location, value) {
-      var tree = location.split('.'),
-        key = tree.shift(),
-        returnValue;
-
-      while (tree.length) {
-        if (cursor[key] !== undefined) {
-          cursor = cursor[key];
-        } else {
-          cursor = cursor[key] = {};
-        }
-        key = tree.shift();
-      }
-
-      if (cursor[key] === undefined) {
-        cursor[key] = value;
-        returnValue = true;
-      } else {
-        returnValue = false;
-      }
-      return returnValue;
-    };
-
-    stringToArray = function (input, pattern) {
-      var result;
-      pattern = pattern || /\s*\,\s*/;
-
-      result = (typeof input !== 'string') ?
-        result = [] :
-        result = input.trim().split(pattern);
-
-      return result;
-    };
+  var namespace = 'applitude',
+    debugLog = [],
+    loadErrors = {},
 
     /**
-     * uid returns a short random string prepended with
-     * the current time. Fairly collision-safe.
-     **/
-    uid = function uid () {
-      return (new Date().getTime() << 0).toString(36) +
-          ("0000" + (Math.random() *
-            Math.pow(36, 4) << 0)
-            .toString(36)).substr(-4);
+     * Deferred utilities
+     */
+    deferred = $.Deferred,
+    when = $.when,
+    resolved = deferred().resolve().promise(),
+    rejected = deferred().reject().promise(),
+    app,
+    register,
+    stringToArray,
+    addMixins,
+    whenRenderReady = deferred(),
+    setModule;
+
+  setModule = function val(cursor, location, value) {
+    var tree = location.split('.'),
+      key = tree.shift(),
+      returnValue;
+
+    while (tree.length) {
+      if (cursor[key] !== undefined) {
+        cursor = cursor[key];
+      } else {
+        cursor = cursor[key] = {};
+      }
+      key = tree.shift();
+    }
+
+    if (cursor[key] === undefined) {
+      cursor[key] = value;
+      returnValue = true;
+    } else {
+      returnValue = false;
+    }
+    return returnValue;
+  };
+
+  stringToArray = function stringToArray(input, pattern) {
+    var result;
+    pattern = pattern || /\s*\,\s*/;
+
+    result = (typeof input !== 'string') ?
+      result = [] :
+      result = input.trim().split(pattern);
+
+    return result;
+  };
+
+  addMixins = function addMixins(module) {
+    var mixins = stringToArray(module.mixins),
+      backup = o.extend({}, module);
+    mixins.forEach(function (mixin) {
+      if (app[mixin]) {
+        o.extend(module, app[mixin]);
+      }
+    });
+    return o.extend(module, backup);
+  };
+
+  app = function applitudeFunction(appNs, environment, options) {
+    var whenPageLoaded = deferred(),
+      beforeRenderOption = (options && options.beforeRender) || [],
+      beforeRender = [whenPageLoaded].concat(beforeRenderOption),
+      tryRender;
+
+    whenRenderReady = when.apply(null, beforeRender);
+
+    tryRender = function tryRender(module) {
+      if (typeof module.render === 'function') {
+        whenRenderReady.then(module.render, module.render);
+      }
     };
 
-    addMixins = function addMixins(module) {
-      var mixins = stringToArray(module.mixins),
-        backup = o.extend({}, module);
-      mixins.forEach(function (mixin) {
-        if (app[mixin]) {
-          o.extend(module, app[mixin]);
-        }
+    register = function register(ns, module) {
+      var whenLoaded,
+        newModule;
+
+      module.moduleNamespace = ns;
+
+      newModule = setModule(app, ns, module, function () {
+        app.events.trigger('module_added' + app.appNamespace, ns);            
       });
-      return o.extend(module, backup);
-    };
 
-    app = function applitudeFunction(appNs, environment, options) {
-      var whenPageLoaded = deferred(),
-        beforeRenderOption = (options && options.beforeRender) || [],
-        beforeRender = [whenPageLoaded].concat(beforeRenderOption),
-        tryRender;
+      if (newModule) {
 
-      whenRenderReady.push.apply(whenRenderReady, beforeRender);
-
-      tryRender = function tryRender(module) {
-        if (typeof module.render === 'function') {
-          whenRenderReady.then(module.render);
+        if (module.mixins) {
+          addMixins(module);
         }
-      };
 
-      register = function register(ns, module) {
-        var whenLoaded,
-          beforeRender = (module && module.beforeRender),
-          newModule;
-
-        module.moduleNamespace = ns;
-
-        newModule = setModule(app, ns, module, function () {
-          app.events.trigger('module_added' + app.appNamespace, ns);            
-        });
-
-        if (newModule) {
-
-          if (module.mixins) {
-            addMixins(module);
-          }
-
-          // Delay global render until promise is fulfilled?
-          // Note, this will not work if render executes before
-          // this module loads.
-          if (beforeRender) {
-            whenRenderReady.push.apply(whenRenderReady, beforeRender);
-          }
-
-          // If load exists, try to load
-          if (typeof module.load === 'function') {
-            try {
-              // If a promise is returned, wait for load to finish.
-              whenLoaded = module.load();
-              if (whenLoaded && whenLoaded.done) {
-                whenLoaded.done(function () {
-                  tryRender(module);
-                });
-              } else {
+        // If load exists, try to load
+        if (typeof module.load === 'function') {
+          try {
+            // If a promise is returned, wait for load to finish.
+            whenLoaded = module.load();
+            if (whenLoaded && whenLoaded.done) {
+              whenLoaded.done(function () {
                 tryRender(module);
-              }
-            } catch (loadError) {
-              loadErrors[ns] = loadError;
-              app.log('Error loading module: ', ns, loadError);
+              });
+            } else {
+              tryRender(module);
             }
-          } else if (!loadErrors[ns]) {
-            // if .render() exists, try to render
-            tryRender(module);
+          } catch (loadError) {
+            loadErrors[ns] = loadError;
+            app.log('Error loading module: ', ns, loadError);
           }
-
-        } else {
-          app.log('Error: Module already registered: ', ns);
+        } else if (!loadErrors[ns]) {
+          // if .render() exists, try to render
+          tryRender(module);
         }
 
-        return app;
-      };
-
-      $(function () {
-        whenPageLoaded.resolve();
-      });
-
-      // aliases
-      events.trigger = events.emit;
-
-      o.extend(app, {
-        register: register,
-        environment: environment,
-        appNamespace: appNs,
-        options: options
-      });
+      } else {
+        app.log('Error: Module already registered: ', ns);
+      }
 
       return app;
     };
 
-    function on() {
-      app.events.on.apply(app.events, arguments);
-    }
-
-    function trigger() {
-      app.events.trigger.apply(app.events, arguments);
-    }
-
-    o.extend(app, {
-      deferred: deferred,
-      resolved: resolved,
-      rejected: rejected,
-      when: when,
-      queue: queue,
-      o: o,
-      $: $,
-      get: $.get,
-      stringToArray: stringToArray,
-      isArray: $.isArray,
-      uid: uid,
-      events: events,
-      on: on,
-      trigger: trigger,
-      debugLog: debugLog
+    $(function () {
+      whenPageLoaded.resolve();
     });
 
-    app.log = function log() {
-      var debug = app.environment && app.environment.debug,
-        hasConsole = (window.console !== undefined) && console.log;
-      if (debug && hasConsole) {
-        console.log.apply(console, [].slice.call(arguments, 0));
-      } else {
-        debugLog.push(arguments);
-      }
-    };
+    // aliases
+    events.trigger = events.emit;
 
-    root[namespace] = app;
+    o.extend(app, {
+      register: register,
+      environment: environment,
+      appNamespace: appNs,
+      options: options
+    });
 
-  }((typeof exports !== 'undefined') ?
-      exports : window,
-    jQuery,
-    odotjs,
-    new EventEmitter2({
-      wildcard: true
-    })));
+    return app;
+  };
 
-}());
+  function on() {
+    app.events.on.apply(app.events, arguments);
+  }
+
+  function trigger() {
+    app.events.trigger.apply(app.events, arguments);
+  }
+
+  o.extend(app, {
+    deferred: deferred,
+    resolved: resolved,
+    rejected: rejected,
+    when: when,
+    o: o,
+    $: $,
+    get: $.get,
+    stringToArray: stringToArray,
+    isArray: $.isArray,
+    events: events,
+    on: on,
+    trigger: trigger,
+    debugLog: debugLog
+  });
+
+  app.log = function log() {
+    var debug = app.environment && app.environment.debug,
+      hasConsole = (window.console !== undefined) && console.log;
+    if (debug && hasConsole) {
+      console.log.apply(console, [].slice.call(arguments, 0));
+    } else {
+      debugLog.push(arguments);
+    }
+  };
+
+  root[namespace] = app;
+
+}((typeof exports !== 'undefined') ?
+    exports : window,
+  jQuery,
+  odotjs,
+  new EventEmitter2({
+    wildcard: true
+  })));

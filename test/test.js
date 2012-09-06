@@ -1,5 +1,20 @@
 /*global test, ok, applitude, equal, deepEqual, start, expect, stop, jQuery*/
 (function (app, $) {
+  (function (app) {
+    var whenAppInitFinished = app.deferred();
+
+    app.on('app_initialized', function () {
+      whenAppInitFinished.resolve();
+    });
+
+    app('applitudeTest', {
+        debug: true
+      },
+      {
+        beforeRender: [whenAppInitFinished.promise()],
+        optionAdded: true
+      });    
+  }(applitude));
 
   $(function () {
     test('Applitude core', function () {
@@ -36,43 +51,22 @@
         '.register() should not allow duplicate registrations.');
     });
 
-    test('Applitude timing.', function () {
-      var whenModuleReady = app.deferred(),
-        hasRendered = false,
-        whenAppInitFinished = app.options.whenAppInitFinished;
-      app.register('testBeforeRender',
-        {
-          load: function load() {},
-          render: function render() {
-            ok(true, 'Render function should run.');
-            start();
-          }
-        });
-
-      expect(4);
+    test('Applitude timing', function () {
+      var hasRendered = false;
       stop();
-
-      // this is separate from above to make sure it's global.
-      app.register('testModuleBeforeRender', {
-        beforeRender: [whenModuleReady]
+      app.register('testBeforeRender', {
+        load: function load() {},
+        render: function render() {
+          hasRendered = true;
+          ok(true, '.render() method should run');
+          start();
+        }
       });
 
-      equal(hasRendered, false,
-        'Render should wait until module beforeRender resolves.');
+      equal(hasRendered, false, 
+        '.render() should wait for beforeRender to resolve.');
 
-      whenModuleReady.done(function () {
-        ok(true,
-          'Module ready should resolve.');
-      });
-
-      whenAppInitFinished.done(function () {
-        equal(hasRendered, false,
-          'Render should wait for .register() beforeRender');
-
-        whenModuleReady.resolve();
-      });
-
-      whenAppInitFinished.resolve();
+      app.trigger('app_initialized');
     });
 
     test('Applitude mixins', function () {
@@ -106,43 +100,6 @@
 
     });
 
-    test('Promise flow utilities', function () {
-      var taskA = app.deferred(),
-        taskB = app.deferred(),
-        taskC = app.deferred(),
-        testQueue = app.queue([taskA.promise(), taskB.promise()]),
-        allDone = false;
-
-      stop();
-      expect(4);
-
-      testQueue.done(function () {
-        allDone = true;
-
-        equal(allDone, true, 
-          'Queue should resolve when all queued promises resolve.');
-
-        start();
-      });
-
-      ok(testQueue.state() !== 'resolved',
-        'Queue should not be resolved until all queued promises resolve.');
-
-      taskA.resolve();
-
-      ok(testQueue.state() !== 'resolved',
-        'Queue should not be resolved until all queued promises resolve.');
-
-      testQueue.push(taskC.promise());
-
-      taskB.resolve();
-
-      ok(testQueue.state() !== 'resolved',
-        'Queue should not be resolved until all queued promises resolve.');            
-
-      taskC.resolve();
-    });
-
     test('Utilities', function () {
       deepEqual(app.stringToArray('a, b, c'), ['a', 'b', 'c'],
         '.stringToArray() converts comma separated strings ' +
@@ -165,8 +122,6 @@
       equal(app.isArray('a, b, c'), false,
         '.isArray() should return false for strings.');
 
-      equal(typeof app.uid(), 'string',
-        '.uid() should return a string.');
 
       deepEqual(app.o.mapOptions('a, b, c', 1, 2, 3),
         {a:1,b:2, c:3},

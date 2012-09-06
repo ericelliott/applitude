@@ -147,17 +147,6 @@ Tip: Try not to do anything blocking in your `.load()` method. For example, you 
 
 *Note that you cannot manipulate the DOM at all in your `.load()` method.*
 
-### beforeRender 
-
-beforeRender is a list of promises which all must finish before .render() begins. For example, many apps will need i18n translations to load before any module is allowed to render. By adding an i18n promise to the application's beforeRender queue, you can postpone render until the translations are loaded. Using beforeRender can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.
-
-    var whenModuleReady = app.deferred();
-
-    app.register('testModuleBeforeRender', {
-      beforeRender: [whenModuleReady]
-    });
-
-
 ## Environment
 
 Environment is made up of things like image hosting URLs which might vary from one host or CDN to another. Generally server side environments will also contain passwords, secrets, or tokens for communicating with third party APIs. Since the client-side JavaScript environment is not secure, you should not pass those secrets through to the JavaScript layer.
@@ -174,24 +163,33 @@ For more on application configuration, see ["The Twelve-Factor App"](http://www.
 
 ## Options
 
-It will also look for a beforeRender array of promises. If passed, no modules will render until all beforeRender promises have resolved.
+### beforeRender
 
-Any other options will be made available on the `app.options` object. Here's a sample:
+beforeRender is a list of application-level promises which all must finish before .render() begins. For example, many apps will need i18n translations to load before any module is allowed to render. By adding an i18n promise to the application's beforeRender queue, you can postpone render until the translations are loaded. Using beforeRender can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.
+
+You can resolve beforeRender promises by listening for an expected event to fire:
 
     (function (app) {
-      var namespace = 'applitudeTest',
-        whenAppInitFinished = app.deferred();
-    
-      app(namespace,
-        {
+      var whenI18nLoaded = app.deferred();
+
+      app.on('translations_loaded.i18n', function () {
+        whenI18nLoaded.resolve();
+      });
+
+      app('hello', {
           debug: true
         },
         {
-          beforeRender: [whenAppInitFinished.promise()],
-          optionAdded: true,
-          whenAppInitFinished: whenAppInitFinished
-        });
+          beforeRender: [whenI18nLoaded.promise()],
+          optionAdded: true
+        });    
     }(applitude));
+
+Later:
+
+    whenTranslationsLoaded.done(function () {
+      app.trigger('translations_loaded.' + namespace);
+    });
 
 ## Applitude Responsibilities
 
@@ -258,7 +256,6 @@ Access libraries and utilities through a canonical interface, rather than callin
 * `app.$()` - A selector engine for dom utulities
 * `app.isArray()` - returns true if the argument is an array
 * `app.stringToArray()` transforms `'a, string'` to `['a', 'string']`
-* `app.uid()` returns a short random string suitable for unique ids
 * `app.o()` provides a [prototypal oo libarary called odotjs](http://dilvie.github.com/odotjs/)
 
 
@@ -320,6 +317,5 @@ Applitude exposes a few Deferred utilities, including:
 * `.resolved` - a resolved promise
 * `.rejected` - a rejected promise
 * `.when()` - a utility that allows you to run callbacks only after all promises passed to it are resolved
-* `.queue()` - like `.when()`, but you can add promises to the wait queue at any time.
 
 These utilities can be helpful for coordinating asynchronous events in your application.
