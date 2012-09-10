@@ -319,3 +319,31 @@ Applitude exposes a few Deferred utilities, including:
 * `.when()` - a utility that allows you to run callbacks only after all promises passed to it are resolved
 
 These utilities can be helpful for coordinating asynchronous events in your application.
+
+
+## Writing Applitude-Compatible Library Code
+
+If you want to write general-purpose library modules that you can use in Node or Applitude, this pattern might help:
+
+    var global = global || this;
+
+    (function (app) {
+      'use strict';
+
+      var namespace = 'testmodule',
+        api = {
+          foo: function () {
+            return 'foo';
+          }
+        };
+
+      if (app.register) {
+        app.register(namespace, api);
+      } else {
+        app[namespace] = api;
+      }
+
+    }(global.applitude || (global.module && global.module.exports) ?
+      global.module.exports : this));
+
+At the bottom of the Immediately Invoked Function Expression (IIFE), you attempt to pass in applitude if it exists. Otherwise, pass in either the CommonJS `module.exports` (for Node), or `this`.
