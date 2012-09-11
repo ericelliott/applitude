@@ -95,6 +95,36 @@ Register your module:
       app.register(namespace, api);
     }(applitude));
 
+You might be tempted to create shortcuts like:
+
+
+    (function (app) {
+      'use strict';
+    
+      app.register('hello', {
+        hello: function () {
+          return 'hello, world';
+        });
+
+    }(applitude));    
+
+However, once you get into the Applitude groove, you'll be using a lot of events, and declaring a namespace lets you do things like this:
+
+    app.trigger('some_action.' + namespace, eventData);
+
+Then, if you need to move responsibilities from one module to another, or change the name of your module, you don't have to change any of this code.
+
+Also, declaring your API explicitly makes it immediately clear which parts of your module constitute the exposed interface:
+
+      api = {
+        hello: hello
+      };
+
+In this case, it's just `hello`, but most interfaces will be more complicated. This is also a great clue about what you need to write tests for. If it's not in the API, don't write tests for it. You should be testing that your interface conforms to the contract.
+
+When you declare you're API, you're making an implied guarantee that users can safely use the attributes exposed on that API, so you need to write unit tests to be sure that's the case.
+
+
 ### Loading and Rendering
 
 Module initialization is broken into two phases:
@@ -325,18 +355,23 @@ These utilities can be helpful for coordinating asynchronous events in your appl
 
 If you want to write general-purpose library modules that you can use with or without Applitude (including Node support), this pattern might help:
 
+    // Shim support for CommonJS variables. This greatly reduces logic needed.
     var global = global || this, module = module || undefined;
     
     (function (app) {
       'use strict';
     
+      // replace the namespace string with the name of your library
       var namespace = 'librarymodule',
+
+        // replace this api with your library code
         api = {
           foo: function () {
             return 'foo';
           }
         };
-    
+
+      // don't change anything from here down.
       if (app.register) {
         app.register(namespace, api);
       } else {
