@@ -325,28 +325,25 @@ These utilities can be helpful for coordinating asynchronous events in your appl
 
 If you want to write general-purpose library modules that you can use with or without Applitude (including Node support), this pattern might help:
 
-    var global = global || this;
-
+    var global = global || this, module = module || undefined;
+    
     (function (app) {
       'use strict';
-
+    
       var namespace = 'librarymodule',
         api = {
-          foo: function foo() {
+          foo: function () {
             return 'foo';
           }
         };
-
+    
       if (app.register) {
         app.register(namespace, api);
       } else {
-        app[namespace] = api;
+        app.exports = api;
       }
-
-    }(global.applitude ||
-      (global.module && global.module.exports ?
-        global.module.exports : this)
-      ));
+    
+    }(global.applitude || module || this));
 
 
-At the bottom of the Immediately Invoked Function Expression (IIFE), you attempt to pass in applitude if it exists. Otherwise, pass in either the CommonJS `module.exports` (for Node), or `this`.
+At the bottom of the Immediately Invoked Function Expression (IIFE), you attempt to pass in applitude if it exists. Otherwise, pass in either the CommonJS `module` (for Node), or `this`.
