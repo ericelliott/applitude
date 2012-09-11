@@ -332,7 +332,7 @@ If you want to write general-purpose library modules that you can use in Node or
 
       var namespace = 'testmodule',
         api = {
-          foo: function () {
+          foo: function foo() {
             return 'foo';
           }
         };
@@ -343,7 +343,10 @@ If you want to write general-purpose library modules that you can use in Node or
         app[namespace] = api;
       }
 
-    }(global.applitude || ((global.module && global.module.exports) ?
-      global.module.exports : this)));
+    }(global.applitude ||
+      (global.module && global.module.exports ?
+        global.module.exports : this)
+      ));
+
 
 At the bottom of the Immediately Invoked Function Expression (IIFE), you attempt to pass in applitude if it exists. Otherwise, pass in either the CommonJS `module.exports` (for Node), or `this`.
