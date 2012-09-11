@@ -323,7 +323,7 @@ These utilities can be helpful for coordinating asynchronous events in your appl
 
 ## Writing Applitude-Compatible Library Code
 
-If you want to write general-purpose library modules that you can use in Node or Applitude, this pattern might help:
+If you want to write general-purpose library modules that you can use with or without Applitude (including Node support), this pattern might help:
 
     var global = global || this;
 
