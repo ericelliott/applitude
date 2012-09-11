@@ -344,6 +344,6 @@ If you want to write general-purpose library modules that you can use in Node or
       }
 
     }(global.applitude || ((global.module && global.module.exports) ?
-      global.module.exports : this));
+      global.module.exports : this)));
 
 At the bottom of the Immediately Invoked Function Expression (IIFE), you attempt to pass in applitude if it exists. Otherwise, pass in either the CommonJS `module.exports` (for Node), or `this`.
