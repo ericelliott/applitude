@@ -330,7 +330,7 @@ If you want to write general-purpose library modules that you can use in Node or
     (function (app) {
       'use strict';
 
-      var namespace = 'testmodule',
+      var namespace = 'librarymodule',
         api = {
           foo: function foo() {
             return 'foo';
