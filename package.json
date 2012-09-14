@@ -34,7 +34,7 @@
     "test": "grunt"
   },
   "engines": {
-    "node": "~0.8.x",
-    "npm": "~1.1.x"    
+    "node": "*",
+    "npm": "*"    
   }
 }
