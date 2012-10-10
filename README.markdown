@@ -375,7 +375,8 @@ If you want to write general-purpose library modules that you can use with or wi
       if (app.register) {
         app.register(namespace, api);
       } else {
-        app.exports = api;
+        namespace = app.exports ? 'exports' : namespace;
+        app[namespace] = api;
       }
     
     }(global.applitude || module || this));
