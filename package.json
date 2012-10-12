@@ -1,12 +1,12 @@
 {
   "name": "applitude",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Simple Module Management",
   "author": {
     "name": "Eric Elliott",
     "url": "http://ericleads.com"
   },  
-  "main": "./applitude.js",
+  "main": "./dist/applitude.js",
   "keywords": [
     "module",
     "modules",
@@ -20,17 +20,19 @@
     "url": "https://github.com/dilvie/applitude"
   },
   "directories": {
+    "dist": "./dist",
+    "examples": "./examples",
     "lib": "./lib",
+    "src": "./src",
     "test": "./test"
   },
   "dependencies": {
     "grunt": "~0.3.x",
     "eventemitter2": "~0.4.x",
-    "odotjs": "~0.2.x",
-    "fs-extra": "~0.1.x"
+    "odotjs": "~0.2.x"
   },
   "scripts": {
-    "postinstall": "node ./scripts/install.js",
+    "postinstall": "grunt",
     "test": "grunt"
   },
   "engines": {
