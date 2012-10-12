@@ -30,7 +30,7 @@ module.exports = function(grunt) {
         dest: 'dist/applitude.js'
       },
       bundle: {
-        src: ['node_modules/eventemitter2/lib/eventemitter2.js', 'node_modules/odotjs/o.js', 'dist/applitude.js'],
+        src: ['node_modules/eventemitter2/lib/eventemitter2.js', 'node_modules/odotjs/dist/o.js', 'dist/applitude.js'],
         dest: 'dist/applitude.bundle.js'
       }
     },

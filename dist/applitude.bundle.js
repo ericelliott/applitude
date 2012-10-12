@@ -555,35 +555,40 @@
  */
 
 /*global exports */
-// Shim .forEach()
-if (!Array.prototype.forEach) {
-  Array.prototype.forEach = function (fn, scope) {
-    var i,
-      length = this.length;
-    for (i = 0, length; i < length; ++i) {
-      fn.call(scope || this, this[i], i, this);
-    }
-  };
-}
 
-// Shim Object.create()
-if (!Object.create) {
-  Object.create = function (o) {
-    if (arguments.length > 1) {
-      throw new Error('Object.create implementation only accepts the first parameter.');
-    }
-    function F() {}
-    F.prototype = o;
-    return new F();
-  };
-}
+// Polyfills
+(function () {
+  'use strict';
+  // Shim .forEach()
+  if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function (fn, scope) {
+      var i,
+        length = this.length;
+      for (i = 0, length; i < length; ++i) {
+        fn.call(scope || this, this[i], i, this);
+      }
+    };
+  }
 
-// Shim String.prototype.trim()
-if(!String.prototype.trim) {
-  String.prototype.trim = function () {
-    return this.replace(/^\s+|\s+$/g,'');
-  };
-}
+  // Shim Object.create()
+  if (!Object.create) {
+    Object.create = function (o) {
+      if (arguments.length > 1) {
+        throw new Error('Object.create implementation only accepts the first parameter.');
+      }
+      function F() {}
+      F.prototype = o;
+      return new F();
+    };
+  }
+
+  // Shim String.prototype.trim()
+  if(!String.prototype.trim) {
+    String.prototype.trim = function () {
+      return this.replace(/^\s+|\s+$/g,'');
+    };
+  }
+}());
 
 (function (exports) {
   'use strict';
@@ -639,19 +644,28 @@ if(!String.prototype.trim) {
      */
     mapOptions = function mapOptions(optionNames) {
       var config = {}, // New config object
+
         // Comma separated string to Array
-        names = optionNames.split(','),
+        names = optionNames.split(/\s*\,\s*/),
+
         // Turn arguments into array, starting at index 1
-        args = [].slice.call(arguments, 1);
+        args = [].slice.call(arguments, 1),
+        isHash;
 
-      names.forEach(function (optionName, index) {
-        // Strip whitespace
-        optionName = optionName.trim();
-
+      names.forEach(function (optionName) {
         // Use first argument as params object...
-        config[optionName] = (args[0] && args[0][optionName]) ||
-          args[index]; // or grab the formal parameter.
+        if (args[0] && args[0][optionName]) {
+          config[optionName] = args[0][optionName];
+          isHash = true;
+        }
       });
+
+      // Or, grab the options from the arguments
+      if (!isHash) {
+        names.forEach(function (optionName, index) {
+          config[optionName] = args[index];
+        });
+      }
 
       return config;
     };
@@ -702,14 +716,14 @@ if(!String.prototype.trim) {
      * @return {function} A new object factory.
      */
     factory: function factory(sharedProperties, defaultProperties,
-        instanceInit, factoryInit) {
+        instanceInit, factoryInit, target) {
       var optionNames = 'sharedProperties, defaultProperties,' +
-          ' instanceInit, factoryInit',
+          ' instanceInit, factoryInit, target',
         config,
         initObj = o();
 
       config = mapOptions(optionNames, sharedProperties,
-        defaultProperties, instanceInit, factoryInit);
+        defaultProperties, instanceInit, factoryInit, target);
       config.instanceInit = config.instanceInit || defaultInit;
 
       // factoryInit can be used to initialize shared private state.
@@ -719,12 +733,19 @@ if(!String.prototype.trim) {
 
       return bless(function (options) {
         var defaultProperties = config.defaultProperties || {},
-          sharedProperties = extend(config.sharedProperties || {}, initObj),
-          instance = extend(defaultProperties, options),
-          obj = extend(o(sharedProperties, instance)),
-          init = config.instanceInit;
+          sharedProperties = extend(config.sharedProperties ||
+            {}, initObj),
+          instance = defaultProperties,
+          target = (config.target) ? config.target : instance,
+          obj, 
+          init;
+
+        extend(target, options);
+        obj = extend(o(sharedProperties, instance));
+        init = config.instanceInit;
+
         return ((typeof init === 'function') ?
-          init.call(obj)
+          init.call(obj, options)
           : obj);
       });
     },
