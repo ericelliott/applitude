@@ -29,6 +29,14 @@ module.exports = function(grunt) {
         src: ['src/applitude.js'],
         dest: 'dist/applitude.js'
       },
+      odotjs: {
+        src: ['node_modules/odotjs/dist/o.js'],
+        dest: 'lib/o.js'
+      },
+      eventemitter2: {
+        src: ['node_modules/eventemitter2/lib/eventemitter2.js'],
+        dest: 'lib/eventemitter2.js'
+      },
       bundle: {
         src: ['node_modules/eventemitter2/lib/eventemitter2.js', 'node_modules/odotjs/dist/o.js', 'dist/applitude.js'],
         dest: 'dist/applitude.bundle.js'
