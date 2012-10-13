@@ -50,5 +50,6 @@ module.exports = function(grunt) {
       tasks: ['lint', 'concat,', 'qunit']
     }
   });
-  grunt.registerTask('default', 'lint concat qunit');
+  grunt.registerTask('default', 'lint concat');
+  grunt.registerTask('test', 'qunit');
 };
