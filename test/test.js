@@ -1,4 +1,4 @@
-/*global test, ok, applitude, equal, deepEqual, start, expect, stop, jQuery*/
+/*global test, ok, applitude, equal, deepEqual, start, stop, jQuery*/
 (function (app, $) {
   'use strict';
   (function (app) {
