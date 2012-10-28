@@ -27,6 +27,7 @@
     "test": "./test"
   },
   "dependencies": {
+    "grunt": "~0.3.x",
     "eventemitter2": "~0.4.x",
     "odotjs": "~0.2.x"
   },
