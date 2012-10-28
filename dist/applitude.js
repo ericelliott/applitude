@@ -8,8 +8,8 @@
  * http://opensource.org/licenses/MIT
  */
 
-/*global jQuery, EventEmitter2, odotjs, window, setTimeout,
-console, exports, navigator */
+/*global jQuery, EventEmitter2, odotjs, window,
+console, exports */
 (function (root, $, o, events) {
   'use strict';
   var namespace = 'applitude',
