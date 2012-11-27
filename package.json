@@ -1,6 +1,6 @@
 {
   "name": "applitude",
-  "version": "0.6.10",
+  "version": "0.6.11",
   "description": "Simple Module Management",
   "author": {
     "name": "Eric Elliott",
@@ -27,12 +27,13 @@
     "test": "./test"
   },
   "dependencies": {
-    "grunt": "~0.3.x",
     "eventemitter2": "~0.4.x",
     "odotjs": "~0.2.x"
   },
+  "devDependencies": {
+    "grunt": "~0.3.x"
+  },
   "scripts": {
-    "postinstall": "grunt",
     "test": "grunt test"
   },
   "engines": {
