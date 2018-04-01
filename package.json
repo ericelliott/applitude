@@ -3,9 +3,8 @@
   "version": "0.6.11",
   "description": "Simple Module Management",
   "author": {
-    "name": "Eric Elliott",
-    "url": "http://ericleads.com"
-  },  
+    "name": "Eric Elliott"
+  },
   "main": "./dist/applitude.js",
   "keywords": [
     "module",
@@ -17,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dilvie/applitude"
+    "url": "https://github.com/ericelliott/applitude"
   },
   "directories": {
     "dist": "./dist",
@@ -38,6 +37,6 @@
   },
   "engines": {
     "node": "*",
-    "npm": "*"    
+    "npm": "*"
   }
 }
